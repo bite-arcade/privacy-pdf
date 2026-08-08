@@ -1,0 +1,26 @@
+/*.wasm
+  Content-Type: application/wasm
+
+# 核心引擎JS 无缓存实时更新
+/core/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# 第三方库 1小时缓存
+/assets/lib/*
+  Cache-Control: public, max-age=3600
+
+# HTML页面 30分钟缓存
+/*.html
+  Cache-Control: public, max-age=1800
+
+# ZIP/下载资源
+*.zip
+  Cache-Control: no-cache
+
+# 全局安全头
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Access-Control-Allow-Origin: *
