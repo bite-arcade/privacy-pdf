@@ -48,6 +48,7 @@ python3 -m http.server 8080
 > static site; a local server is enough to preview it on your machine.
 > 
 
+
 ##ABOUT THE PUBLISHER - Hearth Veil Press
 
 Every great story begins with a choice: to face the world as it is, or to imagine it as it could be. At Hearth Veil Press, we believe you don't have to choose. Hearth is for the world you live in — the real one, with its bills, its decisions, its quiet struggles, and its small victories. It's the knowledge that helps you build a stable foundation: clear financial frameworks, practical AI strategies, and evidence-based guidance. Veil is for the worlds you dream of — where magic has rules, power has a price, and love and fate collide across shifting battlefields. Together, they form a single publishing philosophy: Where Practical Truths Meet Fictional Veils.
@@ -57,6 +58,7 @@ Our books are built on three pillars: Tested — We don't publish theories. We p
 Free Tools & Resources Beyond publishing, Felix builds free, privacy-first digital tools and entertainment platforms: hearthveilpress.com — Official publisher site with free chapters, book launches, exclusive actionable tips, and community updates. PrivacyPDF.org — A free, privacy-first online PDF toolkit (compress, merge, convert) that runs entirely in your browser with zero data uploads. No sign-up. No tracking. Your files never leave your device. Bite Arcade — 483 free browser games across action, puzzle, racing, arcade, and casual genres. Runs instantly on mobile, tablet, and desktop with zero downloads, zero sign-ups, and zero paywalls. Tiny Arcade — 257+ handpicked retro and pixel-art arcade games, preserving classic vintage gaming aesthetics for casual retro enthusiasts.
 
 Hearth Veil Press https://hearthveilpress.com/
+
 
 
 ## 🤝 Contributing
