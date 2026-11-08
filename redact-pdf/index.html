@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redact PDF Locally — Check What Is Left Behind | PrivacyPDF</title>
+    <meta name="description" content="Most redaction tools only draw a black box; the text underneath can still be copied. Here you can count the characters still extractable in each box before you export.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='60' font-size='40' fill='white' text-anchor='middle'>P</text></svg>">
+</head>
+<body>
+    <header>
+        <div style="width:100%;background:#dbeafe;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;row-gap:8px;">
+            <span style="color:#1e40af;font-size:14px;margin-right:6px;">More Games & Books:</span>
+            <a href="https://tiny-arcade.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Tiny Arcade</a>
+            <a href="https://bite-arcade.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Bite Arcade</a>
+            <a href="https://nicheaitool.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Niche AI Tool</a>
+            <a href="https://aifacescore.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">AI Face Score</a>
+            <a href="https://hearthveilpress.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Hearth Veil Press</a>
+        </div>
+        <div class="container header-inner">
+            <a href="/" class="logo">Privacy<span>PDF</span></a>
+            <nav class="nav-links">
+                <a href="/">Compress</a>
+                <a href="/merge-pdf/">Merge</a>
+                <a href="/split-pdf/">Split</a>
+                <a href="/pdf-to-jpg/">PDF to JPG</a>
+                <a href="/redact-pdf/" class="active">Redact</a>
+                <a href="/cn/" style="color:#94a3b8;font-size:13px;">中文</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>A black box is not redaction</h1>
+            <p>Most tools draw a rectangle on top of the words. The words are still in the file — select the area, and they come out. This one shows you how many characters are left before you export.</p>
+        </section>
+
+        <div class="upload-area" id="dropZone">
+            <div class="upload-icon">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M8 15h6"/><path d="M8 18h3"/>
+                </svg>
+            </div>
+            <div class="upload-text">Click or drop one PDF file here</div>
+            <div class="upload-desc">Draw a box around the text you want gone, then check it</div>
+            <input type="file" id="fileInput" accept=".pdf,application/pdf">
+        </div>
+
+        <div id="editor" style="display:none;">
+            <div class="redact-toolbar">
+                <button class="redact-btn" id="prevBtn">Previous</button>
+                <span class="redact-pageinfo" id="pageInfo">Page 1 of 1</span>
+                <button class="redact-btn" id="nextBtn">Next</button>
+                <button class="redact-btn" id="clearBtn">Clear boxes</button>
+            </div>
+
+            <div class="redact-stage" id="stage">
+                <canvas class="redact-canvas" id="pdfCanvas"></canvas>
+                <div class="redact-overlay" id="overlay"></div>
+            </div>
+
+            <div class="redact-actions">
+                <button class="redact-btn" id="checkBtn">Check what is still copyable</button>
+                <button class="redact-btn danger" id="redactBtn">Redact and download</button>
+            </div>
+
+            <div id="report" style="max-width:840px;margin:0 auto;"></div>
+        </div>
+
+        <section style="margin-top:56px;max-width:840px;margin-left:auto;margin-right:auto;">
+            <h2 style="font-size:20px;margin-bottom:10px;">What this actually does to the file</h2>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">The pages you mark are re-rendered as images at 144 DPI, with the box filled black. Once a page is an image, its text layer no longer exists, so nothing on that page can be selected, searched or extracted — including the text you did not mark. Pages you leave untouched are copied as-is and stay selectable. That is the whole trade: the marked pages stop being text.</p>
+            <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">The alternative you will see elsewhere is editing the content stream to delete only the targeted text. It keeps the rest of the page searchable, but a missed duplicate of the same string elsewhere in the file — in a header, a comment, an attachment — stays readable. We choose the blunter method and tell you that it is blunt.</p>
+            <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">Output files are larger, because a page that used to be a few kilobytes of text becomes a JPEG. There is no way around that.</p>
+        </section>
+
+        <section style="margin-top:40px;max-width:840px;margin-left:auto;margin-right:auto;">
+            <h2 style="font-size:20px;margin-bottom:10px;">Healthcare documents</h2>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">If you work with patient records, the practical question is usually whether the file ever leaves the device. Here it does not: the PDF is opened by the browser, rendered by the browser, and saved by the browser. No server receives it, so there is no transmission of PHI and no third party that would need a Business Associate Agreement to handle it.</p>
+            <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">That is a statement about architecture, not a certification. HIPAA also expects access controls, audit logs and encryption at rest, and a browser tool produces none of those. If your compliance process requires a signed BAA or an audit trail, this tool does not satisfy it and should not be presented as if it does.</p>
+        </section>
+
+        <section class="section-note" style="margin-top:40px;max-width:840px;margin-left:auto;margin-right:auto;">
+            <p><strong>What this cannot promise.</strong> A clean check here means the marked pages carry no extractable text layer. It does not mean the document is suitable for a legal filing, and it says nothing about text that lives in annotations, attachments or the XMP metadata block — that is a separate channel, handled on the <a href="/remove-pdf-metadata/" style="color:#2563eb;">remove metadata</a> page.</p>
+            <p><strong>Scans are a different case, and the check says so.</strong> A scanned PDF has no text layer to begin with. Counting characters there returns zero no matter what you draw, and a zero that came from a missing text layer is not evidence that anything was removed. The check reads the page's text layer first and tells you which of the two zeros you are looking at: nothing to copy because the box missed the words, or nothing to copy because the page never had words. The competition does not draw that line — most tools rasterize and report success either way.</p>
+        </section>
+
+        <section style="margin-top:56px;">
+            <h2 style="font-size:22px;margin-bottom:8px;">Related tools</h2>
+            <div class="tool-grid">
+                <a class="tool-card" href="/remove-pdf-metadata/">
+                    <div class="tool-title">Remove Metadata<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Redaction hides the page. Metadata hides the author, the software and the timestamps.</div>
+                </a>
+                <a class="tool-card" href="/merge-pdf/">
+                    <div class="tool-title">Merge PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Combine documents before or after redaction.</div>
+                </a>
+                <a class="tool-card" href="/split-pdf/">
+                    <div class="tool-title">Split PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Cut the pages that need redacting into their own file.</div>
+                </a>
+                <a class="tool-card" href="/">
+                    <div class="tool-title">Compress PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Reduce the size of the image-based output.</div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container">
+        <div class="footer-links">
+            <a href="/about">About</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/disclaimer">Disclaimer</a>
+            <a href="/guide">FAQ</a>
+            <a href="https://github.com/bite-arcade/privacy-pdf" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="copyright">© 2026 PrivacyPDF</div>
+    </footer>
+
+    <div id="cookieBanner" class="cookie-banner">
+        <div class="cookie-inner">
+            <p class="cookie-text">This site uses essential cookies only. No tracking.</p>
+            <button id="cookieAccept" class="cookie-btn">OK</button>
+        </div>
+    </div>
+
+    <script>window._lang = 'en';</script>
+    <script src="/assets/lib/pdf-lib.min.js"></script>
+    <script src="/assets/lib/pdf.min.js"></script>
+    <script>
+    if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/lib/pdf.worker.min.js';
+    }
+    </script>
+    <script src="/core/memory-manager.js"></script>
+    <script src="/core/tools/redact.js"></script>
+    <script src="/assets/js/cookie-banner.js"></script>
+    <script>
+    (function () {
+        var file = null;
+        var pdfDoc = null;
+        var pageNum = 1;
+        var totalPages = 0;
+        var boxes = [];
+        var busy = false;
+
+        var dropZone = document.getElementById('dropZone');
+        var input = document.getElementById('fileInput');
+        var editor = document.getElementById('editor');
+        var canvas = document.getElementById('pdfCanvas');
+        var overlay = document.getElementById('overlay');
+        var pageInfo = document.getElementById('pageInfo');
+        var report = document.getElementById('report');
+        var prevBtn = document.getElementById('prevBtn');
+        var nextBtn = document.getElementById('nextBtn');
+        var clearBtn = document.getElementById('clearBtn');
+        var checkBtn = document.getElementById('checkBtn');
+        var redactBtn = document.getElementById('redactBtn');
+
+        function renderPage(n) {
+            if (!pdfDoc) return;
+            pdfDoc.getPage(n).then(function (page) {
+                var base = page.getViewport({ scale: 1 });
+                var target = 900;
+                var scale = target / base.width;
+                var vp = page.getViewport({ scale: scale });
+                canvas.width = Math.round(vp.width);
+                canvas.height = Math.round(vp.height);
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                page.render({ canvasContext: ctx, viewport: vp }).promise.then(function () {
+                    drawBoxes();
+                    pageInfo.innerText = 'Page ' + n + ' of ' + totalPages;
+                    prevBtn.disabled = n <= 1;
+                    nextBtn.disabled = n >= totalPages;
+                    page.cleanup();
+                });
+            });
+        }
+
+        function drawBoxes() {
+            overlay.innerHTML = '';
+            boxes.filter(function (b) { return b.page === pageNum; }).forEach(function (b) {
+                var el = document.createElement('div');
+                el.className = 'redact-box';
+                el.style.left = (b.x * 100) + '%';
+                el.style.top = (b.y * 100) + '%';
+                el.style.width = (b.w * 100) + '%';
+                el.style.height = (b.h * 100) + '%';
+                overlay.appendChild(el);
+            });
+        }
+
+        var dragging = false;
+        var startPt = null;
+        var draftEl = null;
+
+        function relPos(e) {
+            var r = overlay.getBoundingClientRect();
+            var cx = (e.touches ? e.touches[0].clientX : e.clientX);
+            var cy = (e.touches ? e.touches[0].clientY : e.clientY);
+            return { x: (cx - r.left) / r.width, y: (cy - r.top) / r.height };
+        }
+
+        function beginDrag(e) {
+            if (busy || !pdfDoc) return;
+            e.preventDefault();
+            dragging = true;
+            startPt = relPos(e);
+            draftEl = document.createElement('div');
+            draftEl.className = 'redact-draft';
+            overlay.appendChild(draftEl);
+        }
+
+        function moveDrag(e) {
+            if (!dragging) return;
+            e.preventDefault();
+            var p = relPos(e);
+            var x = Math.min(startPt.x, p.x);
+            var y = Math.min(startPt.y, p.y);
+            var w = Math.abs(p.x - startPt.x);
+            var h = Math.abs(p.y - startPt.y);
+            draftEl.style.left = (x * 100) + '%';
+            draftEl.style.top = (y * 100) + '%';
+            draftEl.style.width = (w * 100) + '%';
+            draftEl.style.height = (h * 100) + '%';
+        }
+
+        function endDrag(e) {
+            if (!dragging) return;
+            dragging = false;
+            var p = relPos(e.changedTouches ? e.changedTouches[0] : e);
+            var x = Math.min(startPt.x, p.x);
+            var y = Math.min(startPt.y, p.y);
+            var w = Math.abs(p.x - startPt.x);
+            var h = Math.abs(p.y - startPt.y);
+            if (w > 0.005 && h > 0.002) {
+                boxes.push({ page: pageNum, x: x, y: y, w: w, h: h });
+            }
+            if (draftEl && draftEl.parentNode) draftEl.parentNode.removeChild(draftEl);
+            draftEl = null;
+            drawBoxes();
+            report.innerHTML = '';
+        }
+
+        overlay.addEventListener('mousedown', beginDrag);
+        overlay.addEventListener('mousemove', moveDrag);
+        window.addEventListener('mouseup', endDrag);
+        overlay.addEventListener('touchstart', beginDrag, { passive: false });
+        overlay.addEventListener('touchmove', moveDrag, { passive: false });
+        overlay.addEventListener('touchend', endDrag);
+
+        function loadFile(f) {
+            if (!f.name.toLowerCase().endsWith('.pdf')) {
+                report.innerHTML = '<div class="redact-verdict bad">That file is not a PDF.</div>';
+                return;
+            }
+            if (f.size > PDFRedactor.MAX_FILE_SIZE) {
+                report.innerHTML = '<div class="redact-verdict bad">This file is over 100 MB. Split it first.</div>';
+                return;
+            }
+            file = f;
+            boxes = [];
+            pageNum = 1;
+            report.innerHTML = '';
+            f.arrayBuffer().then(function (buf) {
+                return pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+            }).then(function (doc) {
+                if (doc.numPages > PDFRedactor.MAX_PAGES) {
+                    report.innerHTML = '<div class="redact-verdict bad">This PDF has ' + doc.numPages +
+                        ' pages. The limit is ' + PDFRedactor.MAX_PAGES + '. Split it first.</div>';
+                    return;
+                }
+                pdfDoc = doc;
+                totalPages = doc.numPages;
+                editor.style.display = 'block';
+                renderPage(1);
+            }).catch(function (err) {
+                report.innerHTML = '<div class="redact-verdict bad">Could not read this PDF. ' +
+                    (err && err.message ? err.message : '') + '</div>';
+            });
+        }
+
+        dropZone.addEventListener('click', function () { input.click(); });
+        input.addEventListener('change', function (e) {
+            if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+            e.target.value = '';
+        });
+        dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('active'); });
+        dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('active'); });
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('active');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+        });
+
+        prevBtn.addEventListener('click', function () {
+            if (pageNum > 1) { pageNum--; renderPage(pageNum); }
+        });
+        nextBtn.addEventListener('click', function () {
+            if (pageNum < totalPages) { pageNum++; renderPage(pageNum); }
+        });
+        clearBtn.addEventListener('click', function () {
+            boxes = [];
+            drawBoxes();
+            report.innerHTML = '';
+        });
+
+        checkBtn.addEventListener('click', function () {
+            if (!file) return;
+            if (boxes.length === 0) {
+                report.innerHTML = '<div class="redact-verdict neutral">Draw at least one box first.</div>';
+                return;
+            }
+            busy = true;
+            checkBtn.disabled = true;
+            report.innerHTML = '<div class="redact-verdict neutral">Reading the text layer…</div>';
+
+            PDFRedactor.analyze(file, boxes).then(function (res) {
+                var html = '';
+                if (res.totalChars === 0) {
+                    var noText = res.noTextPages || [];
+                    var markedPages = [];
+                    boxes.forEach(function (b) {
+                        if (markedPages.indexOf(b.page) === -1) markedPages.push(b.page);
+                    });
+                    var allScan = markedPages.length > 0 && markedPages.every(function (p) {
+                        return noText.indexOf(p) !== -1;
+                    });
+                    if (allScan) {
+                        report.innerHTML = '<div class="redact-verdict neutral">0 characters inside the marked areas, and ' +
+                            (markedPages.length === 1 ? 'that page has' : 'those pages have') +
+                            ' no text layer at all. This file is a scan: the words are pixels, so there is nothing to copy ' +
+                            'and nothing for a black box to hide. Exporting still turns the page into an image, but that ' +
+                            'changes the file without removing anything.</div>';
+                    } else {
+                        report.innerHTML = '<div class="redact-verdict neutral">0 characters inside the marked areas. ' +
+                            'The pages under the box do have a text layer, so the box is not sitting on any text — ' +
+                            'widen or move it. A 0 here means the box missed, not that the page is clean.</div>';
+                    }
+                    busy = false;
+                    checkBtn.disabled = false;
+                    return;
+                }
+                html += '<div class="redact-verdict bad">' + res.totalChars +
+                        ' characters can still be copied out of ' + boxes.length +
+                        ' marked ' + (boxes.length === 1 ? 'area' : 'areas') +
+                        '. Covering it with a black box would not change that.</div>';
+
+                res.boxes.forEach(function (b) {
+                    if (b.chars === 0) return;
+                    html += '<div class="redact-verdict neutral">Page ' + b.page + ', box ' + (b.boxIndex + 1) +
+                            ': ' + b.chars + ' characters across ' + b.items + ' text run' +
+                            (b.items === 1 ? '' : 's') + '.';
+                    if (b.samples.length) {
+                        html += '<div class="redact-samples">' +
+                            b.samples.map(function (s) { return '“' + s.replace(/</g, '&lt;') + '”'; }).join(' · ') +
+                            '</div>';
+                    }
+                    html += '</div>';
+                });
+                report.innerHTML = html;
+            }).catch(function (err) {
+                report.innerHTML = '<div class="redact-verdict bad">' + (err.message || 'Check failed.') + '</div>';
+            }).finally(function () {
+                busy = false;
+                checkBtn.disabled = false;
+            });
+        });
+
+        var lastRedaction = null;
+
+        redactBtn.addEventListener('click', function () {
+            if (!file) return;
+            if (boxes.length === 0) {
+                report.innerHTML = '<div class="redact-verdict neutral">Draw at least one box first.</div>';
+                return;
+            }
+            busy = true;
+            deny();
+            report.innerHTML = '<div class="redact-verdict neutral">Rendering marked pages…</div>';
+
+            PDFRedactor.redact(file, boxes, function (pct) {
+                report.innerHTML = '<div class="redact-verdict neutral">Rendering: ' + pct + '%</div>';
+            }).then(function (res) {
+                lastRedaction = res;
+                MemoryManager.registerBlob(res.blob);
+                var url = URL.createObjectURL(res.blob);
+                MemoryManager.registerURL(url);
+                var name = file.name.replace(/\.pdf$/i, '') + '-redacted.pdf';
+
+                var html = '<div class="redact-verdict neutral">' + res.rastered + ' page' +
+                    (res.rastered === 1 ? '' : 's') + ' turned into images, ' + res.copied +
+                    ' page' + (res.copied === 1 ? '' : 's') + ' copied unchanged. ' +
+                    (res.blob.size / 1024).toFixed(0) + ' KB.</div>';
+                html += '<div class="redact-actions"><a class="redact-btn primary" href="' + url +
+                    '" download="' + name + '">Download ' + name + '</a></div>';
+                html += '<div class="redact-verdict neutral" id="verifyBox">Opening the file again to count what is left…</div>';
+                report.innerHTML = html;
+
+                return PDFRedactor.verify(res.blob);
+            }).then(function (v) {
+                var box = document.getElementById('verifyBox');
+                if (!box) return;
+                if (v.chars === 0) {
+                    var hadText = lastRedaction ? lastRedaction.rasteredWithText : 1;
+                    if (hadText === 0) {
+                        // 原本就没有文本层。0 不是清理成功的证据。
+                        box.className = 'redact-verdict neutral';
+                        box.innerText = 'Opened the output again: 0 extractable characters. The pages you marked ' +
+                            'had no text layer before this ran either — this file appears to be a scan. Nothing was ' +
+                            'removed, because there was nothing to remove; the export only turned those pages into images.';
+                    } else {
+                        box.className = 'redact-verdict good';
+                        box.innerText = 'Opened the output again: 0 extractable characters across ' +
+                            v.pageCount + ' pages. The text layer that was on ' + hadText +
+                            ' marked page' + (hadText === 1 ? '' : 's') + ' is gone.';
+                    }
+                } else {
+                    box.className = 'redact-verdict neutral';
+                    box.innerText = v.chars + ' extractable characters remain, on ' + v.pagesWithText +
+                        ' page' + (v.pagesWithText === 1 ? '' : 's') + '. Those are the pages you did not mark — ' +
+                        'they were copied as-is. Mark them and run again if they need to go too.';
+                }
+            }).catch(function (err) {
+                report.innerHTML = '<div class="redact-verdict bad">' + (err.message || 'Redaction failed.') + '</div>';
+            }).finally(function () {
+                busy = false;
+                allow();
+            });
+        });
+
+        function deny() {
+            redactBtn.disabled = true;
+            checkBtn.disabled = true;
+            clearBtn.disabled = true;
+        }
+        function allow() {
+            redactBtn.disabled = false;
+            checkBtn.disabled = false;
+            clearBtn.disabled = false;
+        }
+    })();
+    </script>
+</body>
+</html>

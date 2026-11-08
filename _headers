@@ -5,6 +5,9 @@
 /core/*.js
   Cache-Control: no-cache, no-store, must-revalidate
 
+/core/tools/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 # 第三方库 1小时缓存
 /assets/lib/*
   Cache-Control: public, max-age=3600
@@ -13,9 +16,21 @@
 /*.html
   Cache-Control: public, max-age=1800
 
+/*/*.html
+  Cache-Control: public, max-age=1800
+
 # ZIP/下载资源
 *.zip
   Cache-Control: no-cache
+
+# sitemap 必须以 XML 返回，且不能被当成 HTML 缓存
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
 
 # 全局安全头
 /*

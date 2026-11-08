@@ -4,16 +4,26 @@ const ZipHandler = {
         const tasks = UIHandler.tasks;
         const lang = window._lang || 'en';
         if (tasks.size === 0) {
-            alert(lang === 'zh' ? '暂无已压缩完成的文件' : 'No compressed files available');
+            alert(lang === 'zh' ? '暂无可下载的文件' : 'No finished files yet');
             return;
         }
         try {
             const zip = new JSZip();
+            let counter = 0;
+            const seen = {};
             tasks.forEach(item => {
-                const name = (item.name && item.name.toLowerCase().endsWith('.pdf'))
-                    ? item.name.replace(/\.pdf$/i, '_compressed.pdf')
-                    : 'compressed_' + Date.now() + '.pdf';
-                zip.file(name, item.blob);
+                const list = (item.items && item.items.length) ? item.items : [{ blob: item.blob, name: item.name }];
+                list.forEach(e => {
+                    let name = e.name || ('output-' + (++counter) + '.pdf');
+                    if (seen[name]) {
+                        const dot = name.lastIndexOf('.');
+                        const base = dot > 0 ? name.slice(0, dot) : name;
+                        const ext = dot > 0 ? name.slice(dot) : '';
+                        name = base + '-' + (++counter) + ext;
+                    }
+                    seen[name] = true;
+                    zip.file(name, e.blob);
+                });
             });
             const content = await zip.generateAsync({ type: 'blob' });
             const url = URL.createObjectURL(content);

@@ -1,16 +1,27 @@
-# PrivacyPDF — 100% Local PDF Compression
+# PrivacyPDF — six PDF tools that run in your browser
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/privacypdf-local-pdf-comp/oopdaijnpdggadnchldhffnepeijidil)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Live Site](https://img.shields.io/badge/website-privacypdf.org-green)](https://privacypdf.org)
 
-A free, privacy-first PDF compressor that runs **100% in your browser**. No uploads, no servers, no tracking. Your files never leave your device.
+Six small PDF tools, all running **100% in your browser**. No uploads, no servers, no tracking. Every file stays on your device.
+
+## ✨ The six tools
+
+| Tool | What it does |
+| --- | --- |
+| [Compress a PDF](https://privacypdf.org/) | Shrink a large file, with what you give up spelled out before you run it |
+| [Merge PDF files](https://privacypdf.org/merge-pdf/) | Combine several PDFs into one, in the order you choose |
+| [Split a PDF](https://privacypdf.org/split-pdf/) | Cut pages out into separate files or page ranges |
+| [Convert PDF to JPG](https://privacypdf.org/pdf-to-jpg/) | Render each page to an image at 72, 144 or 216 DPI |
+| [Redact a PDF](https://privacypdf.org/redact-pdf/) | Remove the text instead of hiding it, then verify what is left |
+| [Remove PDF metadata](https://privacypdf.org/remove-pdf-metadata/) | Strip the Author, Title, Creator and XMP fields |
 
 ## ✨ Features
 
-- **Three compression modes** — Light (best quality), Balanced (recommended), Extreme (smallest size)
-- **Batch processing** — compress multiple PDFs at once
-- **ZIP export** — download all compressed files as a single archive
+- **Three compression modes** — Light (highest fidelity), Balanced (recommended), Extreme (smallest size)
+- **Batch processing** — work on multiple files at once
+- **ZIP export** — download the whole batch as a single archive
 - **Zero data upload** — all processing happens locally using pdf-lib, pdf.js, and JSZip
 - **No account required** — no sign-up, no email, no subscription
 - **Chrome extension available** — compress PDFs right from your browser toolbar
@@ -44,9 +55,9 @@ python3 -m http.server 8080
 
 ## 🔒 Why Local Processing Matters
 
-Most online PDF compressors work by uploading your file to a remote server, processing it, and sending back the result. This means your documents — contracts, financial records, medical information, personal data — are transmitted across the internet and stored on third-party servers, even if only temporarily.
+Most online PDF tools work by uploading your file to a remote server, processing it, and sending back the result. This means your documents — contracts, financial records, medical information, personal data — are transmitted across the internet and stored on third-party servers, even if only temporarily.
 
-PrivacyPDF takes a different approach. All compression happens directly in your browser using JavaScript libraries. Your PDF never leaves your device. There is no server to hack, no database to breach, no log file to subpoena. When you close the tab, the file is gone from memory.
+PrivacyPDF takes a different approach. All processing happens directly in your browser using JavaScript libraries. Your PDF never leaves your device. There is no server to hack, no database to breach, no log file to subpoena. When you close the tab, the file is gone from memory.
 
 ## 🛠️ Tech Stack
 

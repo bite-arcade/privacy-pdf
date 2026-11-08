@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove PDF Metadata Locally — Info and XMP | PrivacyPDF</title>
+    <meta name="description" content="See every field stored in your PDF, including the XMP packet most tools leave behind, then strip it without uploading the file.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='60' font-size='40' fill='white' text-anchor='middle'>P</text></svg>">
+</head>
+<body>
+    <header>
+        <div style="width:100%;background:#dbeafe;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;row-gap:8px;">
+            <span style="color:#1e40af;font-size:14px;margin-right:6px;">More Games & Books:</span>
+            <a href="https://tiny-arcade.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Tiny Arcade</a>
+            <a href="https://bite-arcade.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Bite Arcade</a>
+            <a href="https://nicheaitool.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Niche AI Tool</a>
+            <a href="https://aifacescore.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">AI Face Score</a>
+            <a href="https://hearthveilpress.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Hearth Veil Press</a>
+        </div>
+        <div class="container header-inner">
+            <a href="/" class="logo">Privacy<span>PDF</span></a>
+            <nav class="nav-links">
+                <a href="/">Compress</a>
+                <a href="/merge-pdf/">Merge</a>
+                <a href="/split-pdf/">Split</a>
+                <a href="/pdf-to-jpg/">PDF to JPG</a>
+                <a href="/redact-pdf/">Redact</a>
+                <a href="/cn/" style="color:#94a3b8;font-size:13px;">中文</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Remove PDF metadata, including the part most tools skip</h1>
+            <p>Two separate channels store your name: the Info dictionary and the XMP packet. Many cleaners clear the first and leave the second intact.</p>
+        </section>
+
+        <div class="upload-area" id="dropZone">
+            <div class="upload-icon">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M10 12h4"/><path d="M12 10v4"/><path d="M10 17h4"/>
+                </svg>
+            </div>
+            <div class="upload-text">Click or drop one PDF file here</div>
+            <div class="upload-desc">You see every field before anything is removed</div>
+            <input type="file" id="fileInput" accept=".pdf,application/pdf">
+        </div>
+
+        <div id="metaPanel" style="display:none;max-width:840px;margin:0 auto;">
+            <div class="meta-head">Info dictionary</div>
+            <div class="meta-note">Written when the file is saved. Usually carries the author, the source application and the creation date.</div>
+            <table class="meta-table" id="infoTable"></table>
+
+            <div class="meta-head">XMP packet</div>
+            <div class="meta-note" id="xmpNote"></div>
+            <table class="meta-table" id="xmpTable"></table>
+
+            <div class="redact-actions">
+                <button class="redact-btn danger" id="stripBtn">Remove all of it and download</button>
+            </div>
+            <div id="result"></div>
+        </div>
+
+        <section style="margin-top:52px;max-width:840px;margin-left:auto;margin-right:auto;">
+            <h2 style="font-size:20px;margin-bottom:10px;">Why one pass is not enough</h2>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">The Info dictionary is a small key-value block near the end of the file. Clearing it removes Title, Author, Subject, Keywords, Creator and Producer. But PDF 1.4 and later also carry an XMP packet — an XML block attached to the document catalog — and that block frequently repeats the author, the tool that produced the file, and timestamps. A cleaner that touches only the Info dictionary leaves the packet untouched, and so does the compression pipeline on this site: it clears the Info dict but keeps XMP.</p>
+            <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">This page reads both, prints both, and removes both. After saving, the output is reopened and the fields are read again, so you can see that the removal actually took rather than trusting a success message.</p>
+            <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">What it does not touch: the text of the document, embedded images, annotations, or the file's structure. Metadata removal is not redaction — if a name appears in the body text, it stays there.</p>
+        </section>
+
+        <section style="margin-top:56px;">
+            <h2 style="font-size:22px;margin-bottom:8px;">Related tools</h2>
+            <div class="tool-grid">
+                <a class="tool-card" href="/redact-pdf/">
+                    <div class="tool-title">Redact PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Remove visible text instead of covering it, then count what is left.</div>
+                </a>
+                <a class="tool-card" href="/">
+                    <div class="tool-title">Compress PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Shrink the file. Note that it clears the Info dict but not XMP.</div>
+                </a>
+                <a class="tool-card" href="/merge-pdf/">
+                    <div class="tool-title">Merge PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Combine files, then clean the merged result here.</div>
+                </a>
+                <a class="tool-card" href="/split-pdf/">
+                    <div class="tool-title">Split PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Split first, clean each part separately if only one needs it.</div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container">
+        <div class="footer-links">
+            <a href="/about">About</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/disclaimer">Disclaimer</a>
+            <a href="/guide">FAQ</a>
+            <a href="https://github.com/bite-arcade/privacy-pdf" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="copyright">© 2026 PrivacyPDF</div>
+    </footer>
+
+    <div id="cookieBanner" class="cookie-banner">
+        <div class="cookie-inner">
+            <p class="cookie-text">This site uses essential cookies only. No tracking.</p>
+            <button id="cookieAccept" class="cookie-btn">OK</button>
+        </div>
+    </div>
+
+    <script>window._lang = 'en';</script>
+    <script src="/assets/lib/pdf-lib.min.js"></script>
+    <script src="/core/memory-manager.js"></script>
+    <script src="/core/tools/metadata.js"></script>
+    <script src="/assets/js/cookie-banner.js"></script>
+    <script>
+    (function () {
+        var file = null;
+        var dropZone = document.getElementById('dropZone');
+        var input = document.getElementById('fileInput');
+        var panel = document.getElementById('metaPanel');
+        var infoTable = document.getElementById('infoTable');
+        var xmpTable = document.getElementById('xmpTable');
+        var xmpNote = document.getElementById('xmpNote');
+        var result = document.getElementById('result');
+        var stripBtn = document.getElementById('stripBtn');
+
+        function esc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function row(k, v) {
+            var tr = document.createElement('tr');
+            var th = document.createElement('th');
+            th.innerText = k;
+            var td = document.createElement('td');
+            if (v === null || v === undefined || v === '' || (Array.isArray(v) && v.length === 0)) {
+                td.innerHTML = '<span class="meta-empty">not set</span>';
+            } else {
+                td.innerText = Array.isArray(v) ? v.join(', ') : String(v);
+            }
+            tr.appendChild(th);
+            tr.appendChild(td);
+            return tr;
+        }
+
+        function render(res) {
+            infoTable.innerHTML = '';
+            Object.keys(res.info).forEach(function (k) { infoTable.appendChild(row(k, res.info[k])); });
+
+            xmpTable.innerHTML = '';
+            if (!res.xmp.present) {
+                xmpNote.innerText = 'No XMP packet in this file. Only the Info dictionary is there to remove.';
+                xmpTable.style.display = 'none';
+            } else if (res.xmp.compressed) {
+                xmpNote.innerText = 'An XMP packet is present but compressed; its fields cannot be listed here. It will still be removed whole.';
+                xmpTable.style.display = 'none';
+            } else if (res.xmp.fields.length === 0) {
+                xmpNote.innerText = 'An XMP packet is present but no readable field values were found in it. It will still be removed whole.';
+                xmpTable.style.display = 'none';
+            } else {
+                xmpNote.innerText = res.xmp.fields.length + ' readable field' +
+                    (res.xmp.fields.length === 1 ? '' : 's') + ' in the packet. All of it gets removed, listed or not.';
+                xmpTable.style.display = '';
+                res.xmp.fields.forEach(function (f) { xmpTable.appendChild(row(f.key, f.value)); });
+            }
+            panel.style.display = 'block';
+        }
+
+        function loadFile(f) {
+            if (!f.name.toLowerCase().endsWith('.pdf')) {
+                result.innerHTML = '<div class="redact-verdict bad">That file is not a PDF.</div>';
+                return;
+            }
+            file = f;
+            result.innerHTML = '<div class="redact-verdict neutral">Reading the document catalog…</div>';
+            panel.style.display = 'block';
+            infoTable.innerHTML = '';
+            xmpTable.innerHTML = '';
+            xmpNote.innerText = '';
+
+            PDFMetadata.inspect(f).then(render).catch(function (err) {
+                result.innerHTML = '<div class="redact-verdict bad">' + (err.message || 'Could not read this PDF.') + '</div>';
+            });
+        }
+
+        dropZone.addEventListener('click', function () { input.click(); });
+        input.addEventListener('change', function (e) {
+            if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+            e.target.value = '';
+        });
+        dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('active'); });
+        dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('active'); });
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('active');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+        });
+
+        stripBtn.addEventListener('click', function () {
+            if (!file) return;
+            stripBtn.disabled = true;
+            result.innerHTML = '<div class="redact-verdict neutral">Clearing both channels…</div>';
+
+            PDFMetadata.strip(file).then(function (res) {
+                MemoryManager.registerBlob(res.blob);
+                var url = URL.createObjectURL(res.blob);
+                MemoryManager.registerURL(url);
+                var name = file.name.replace(/\.pdf$/i, '') + '-no-metadata.pdf';
+
+                var html = '<div class="redact-verdict neutral">Saved. ' + (res.blob.size / 1024).toFixed(0) + ' KB.</div>';
+                html += '<div class="redact-actions"><a class="redact-btn primary" href="' + url +
+                    '" download="' + name + '">Download ' + name + '</a></div>';
+                html += '<div class="redact-verdict neutral" id="verifyBox">Reopening the output to read the fields again…</div>';
+                result.innerHTML = html;
+                return PDFMetadata.verify(res.blob);
+            }).then(function (v) {
+                var box = document.getElementById('verifyBox');
+                if (!box) return;
+                if (v.remaining.length === 0) {
+                    box.className = 'redact-verdict good';
+                    box.innerText = 'Reopened the output: no Info fields with values, no XMP packet. ' + v.pageCount + ' pages intact.';
+                } else {
+                    box.className = 'redact-verdict bad';
+                    box.innerText = 'Still present after saving: ' + v.remaining.join(' | ');
+                }
+            }).catch(function (err) {
+                result.innerHTML = '<div class="redact-verdict bad">' + (err.message || 'Removal failed.') + '</div>';
+            }).finally(function () {
+                stripBtn.disabled = false;
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

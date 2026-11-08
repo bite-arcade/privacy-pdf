@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge PDF Files Locally — No Upload | PrivacyPDF</title>
+    <meta name="description" content="Combine several PDF files into one in your browser. Pages are copied, not re-rendered, so text stays selectable. No upload, no account.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='60' font-size='40' fill='white' text-anchor='middle'>P</text></svg>">
+</head>
+<body>
+    <header>
+        <div style="width:100%;background:#dbeafe;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;row-gap:8px;">
+            <span style="color:#1e40af;font-size:14px;margin-right:6px;">More Games & Books:</span>
+            <a href="https://tiny-arcade.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Tiny Arcade</a>
+            <a href="https://bite-arcade.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Bite Arcade</a>
+            <a href="https://nicheaitool.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Niche AI Tool</a>
+            <a href="https://aifacescore.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">AI Face Score</a>
+            <a href="https://hearthveilpress.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Hearth Veil Press</a>
+        </div>
+        <div class="container header-inner">
+            <a href="/" class="logo">Privacy<span>PDF</span></a>
+            <nav class="nav-links">
+                <a href="/">Compress</a>
+                <a href="/merge-pdf/" class="active">Merge</a>
+                <a href="/split-pdf/">Split</a>
+                <a href="/pdf-to-jpg/">PDF to JPG</a>
+                <a href="/redact-pdf/">Redact</a>
+                <a href="/cn/" style="color:#94a3b8;font-size:13px;">中文</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Merge PDF files without uploading them</h1>
+            <p>Pages are copied from one document to another, not re-rendered. Text stays selectable and links keep working.</p>
+        </section>
+
+        <div class="upload-area" id="dropZone">
+            <div class="upload-icon">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 12v5"/><path d="M9.5 14.5h5"/>
+                </svg>
+            </div>
+            <div class="upload-text">Click or drop 2 or more PDF files here</div>
+            <div class="upload-desc">Order matters — move files up or down before merging</div>
+            <input type="file" id="fileInput" accept=".pdf,application/pdf" multiple>
+        </div>
+
+        <div id="mergeList"></div>
+
+        <div class="merge-actions" id="mergeActions" style="display:none;">
+            <button class="merge-run" id="mergeRun">Merge PDFs</button>
+            <button class="merge-clear" id="mergeClear">Clear list</button>
+        </div>
+
+        <div id="mergeStatus" class="merge-status"></div>
+
+        <section class="section-note" style="margin-top:48px;">
+            <p><strong>What merge does and does not change.</strong> This tool copies page objects from your files into a new document. Nothing is re-encoded, so selectable text, embedded fonts, vectors, links and form fields survive the merge. The output is the same size as the sum of the inputs, minus a small amount of duplicated structure.</p>
+            <p style="margin-top:12px;"><strong>Encrypted files stop the merge.</strong> A password-protected PDF has to be unlocked before its pages can be copied. If one file fails, the whole batch stops and names the file — it does not silently skip it.</p>
+        </section>
+
+        <section style="margin-top:56px;">
+            <h2 style="font-size:22px;margin-bottom:8px;">Related tools</h2>
+            <div class="tool-grid">
+                <a class="tool-card" href="/split-pdf/">
+                    <div class="tool-title">Split PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Cut one PDF into separate files, or pull out a page range.</div>
+                </a>
+                <a class="tool-card" href="/pdf-to-jpg/">
+                    <div class="tool-title">PDF to JPG<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Render each page as an image you can paste into slides or email.</div>
+                </a>
+                <a class="tool-card" href="/">
+                    <div class="tool-title">Compress PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Reduce file size. Read what it costs before you pick a level.</div>
+                </a>
+                <a class="tool-card" href="/redact-pdf/">
+                    <div class="tool-title">Redact PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Remove text instead of covering it, then check the result yourself.</div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container">
+        <div class="footer-links">
+            <a href="/about">About</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/disclaimer">Disclaimer</a>
+            <a href="/guide">FAQ</a>
+            <a href="https://github.com/bite-arcade/privacy-pdf" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="copyright">© 2026 PrivacyPDF</div>
+    </footer>
+
+    <div id="cookieBanner" class="cookie-banner">
+        <div class="cookie-inner">
+            <p class="cookie-text">This site uses essential cookies only. No tracking.</p>
+            <button id="cookieAccept" class="cookie-btn">OK</button>
+        </div>
+    </div>
+
+    <script>window._lang = 'en';</script>
+    <script src="/assets/lib/pdf-lib.min.js"></script>
+    <script src="/core/memory-manager.js"></script>
+    <script src="/core/tools/merge.js"></script>
+    <script src="/assets/js/cookie-banner.js"></script>
+    <script>
+    (function () {
+        var files = [];
+        var dropZone = document.getElementById('dropZone');
+        var input = document.getElementById('fileInput');
+        var listEl = document.getElementById('mergeList');
+        var actions = document.getElementById('mergeActions');
+        var runBtn = document.getElementById('mergeRun');
+        var clearBtn = document.getElementById('mergeClear');
+        var statusEl = document.getElementById('mergeStatus');
+
+        function kb(n) {
+            return n < 1024 * 1024 ? (n / 1024).toFixed(0) + ' KB' : (n / 1024 / 1024).toFixed(2) + ' MB';
+        }
+
+        function render() {
+            listEl.innerHTML = '';
+            files.forEach(function (f, i) {
+                var row = document.createElement('div');
+                row.className = 'merge-item';
+                row.innerHTML =
+                    '<div class="merge-idx">' + (i + 1) + '</div>' +
+                    '<div class="merge-meta"><div class="merge-name"></div><div class="merge-size">' + kb(f.size) + '</div></div>' +
+                    '<div class="merge-ops"></div>';
+                row.querySelector('.merge-name').textContent = f.name;
+
+                var ops = row.querySelector('.merge-ops');
+                if (i > 0) ops.appendChild(mkBtn('Up', function () { move(i, i - 1); }));
+                if (i < files.length - 1) ops.appendChild(mkBtn('Down', function () { move(i, i + 1); }));
+                ops.appendChild(mkBtn('Remove', function () { files.splice(i, 1); render(); }));
+
+                listEl.appendChild(row);
+            });
+            actions.style.display = files.length >= 2 ? 'flex' : 'none';
+            runBtn.disabled = files.length < 2;
+        }
+
+        function mkBtn(label, fn) {
+            var b = document.createElement('button');
+            b.className = 'merge-op';
+            b.innerText = label;
+            b.onclick = fn;
+            return b;
+        }
+
+        function move(from, to) {
+            var tmp = files[from];
+            files[from] = files[to];
+            files[to] = tmp;
+            render();
+        }
+
+        function addFiles(fileList) {
+            var incoming = Array.prototype.slice.call(fileList).filter(function (f) {
+                return f.name.toLowerCase().endsWith('.pdf');
+            });
+            files = files.concat(incoming);
+            if (files.length > PDFMerger.MAX_FILES) {
+                files = files.slice(0, PDFMerger.MAX_FILES);
+                statusEl.innerText = 'Only the first ' + PDFMerger.MAX_FILES + ' files were kept.';
+            } else if (incoming.length === 0) {
+                statusEl.innerText = 'Those files were not PDFs.';
+            }
+            render();
+        }
+
+        dropZone.addEventListener('click', function () { input.click(); });
+        input.addEventListener('change', function (e) { addFiles(e.target.files); e.target.value = ''; });
+        dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('active'); });
+        dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('active'); });
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('active');
+            addFiles(e.dataTransfer.files);
+        });
+
+        clearBtn.addEventListener('click', function () {
+            files = [];
+            statusEl.innerText = '';
+            render();
+        });
+
+        runBtn.addEventListener('click', function () {
+            var bad = PDFMerger.validate(files);
+            if (bad) { statusEl.innerText = bad; return; }
+            runBtn.disabled = true;
+            runBtn.innerText = 'Merging...';
+            statusEl.innerText = '';
+
+            PDFMerger.merge(files, function (pct) {
+                statusEl.innerText = 'Working: ' + pct + '%';
+            }, function (n, total, name, pagesSoFar) {
+                statusEl.innerText = 'Reading ' + n + ' of ' + total + ': ' + name + ' — ' + pagesSoFar + ' pages so far';
+            }).then(function (res) {
+                MemoryManager.registerBlob(res.blob);
+                var url = URL.createObjectURL(res.blob);
+                MemoryManager.registerURL(url);
+                var base = files[0].name.replace(/\.pdf$/i, '');
+                var name = base + '-merged.pdf';
+
+                statusEl.innerHTML = '';
+                var box = document.createElement('div');
+                box.className = 'merge-result';
+                box.innerHTML = '<div class="merge-result-info"></div>';
+                box.querySelector('.merge-result-info').textContent =
+                    res.pages + ' pages · ' + kb(res.blob.size);
+
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = name;
+                a.className = 'merge-download';
+                a.innerText = 'Download ' + name;
+                box.appendChild(a);
+                statusEl.appendChild(box);
+            }).catch(function (err) {
+                statusEl.innerText = err.message || 'Merge failed.';
+            }).finally(function () {
+                runBtn.disabled = false;
+                runBtn.innerText = 'Merge PDFs';
+            });
+        });
+    })();
+    </script>
+</body>
+</html>
