@@ -142,21 +142,15 @@
       }
     }
     </script>
-    <script src="/assets/lib/jszip.min.js"></script>
-    <script src="/assets/lib/pdf-lib.min.js"></script>
-    <script src="/assets/lib/pdf.min.js"></script>
-    <script>
-    if (typeof pdfjsLib !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/lib/pdf.worker.min.js';
-    } else {
-        console.warn('Critical: pdfjs library load failed, image compression mode disabled');
-    }
-    </script>
-    <script src="/core/memory-manager.js"></script>
-    <script src="/core/compressor.js"></script>
-    <script src="/core/ui-handler.js"></script>
-    <script src="/core/zip-handler.js"></script>
-    <script src="/assets/js/cookie-banner.js"></script>
+    <script src="/assets/lib/jszip.min.js" defer></script>
+    <script src="/assets/lib/pdf-lib.min.js" defer></script>
+    <script src="/assets/lib/pdf.min.js" defer></script>
+    <script src="/assets/js/pdf-worker-init.js" defer></script>
+    <script src="/core/memory-manager.js" defer></script>
+    <script src="/core/compressor.js" defer></script>
+    <script src="/core/ui-handler.js" defer></script>
+    <script src="/core/zip-handler.js" defer></script>
+    <script src="/assets/js/cookie-banner.js" defer></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (window.UIHandler) UIHandler.initUploadEvent();
