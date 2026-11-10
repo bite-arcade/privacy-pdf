@@ -201,7 +201,11 @@ const UIHandler = {
 
     toggleBatchDownloadBtn() {
         const batchBtn = document.querySelector('.download-all');
-        if (batchBtn) batchBtn.style.display = this.tasks.size > 1 ? 'block' : 'none';
+        if (!batchBtn) return;
+        // 判据是“输出总数”，不是上传文件数：一个 PDF 转 12 张图也要能打包下载。
+        let outputs = 0;
+        this.tasks.forEach(item => { outputs += (item.items && item.items.length) ? item.items.length : 1; });
+        batchBtn.style.display = outputs > 1 ? 'block' : 'none';
     },
 
     showTaskError(taskId, msg) {

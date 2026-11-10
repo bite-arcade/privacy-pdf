@@ -136,7 +136,7 @@
     <script src="/assets/lib/pdf-lib.min.js"></script>
     <script src="/core/memory-manager.js"></script>
     <script src="/core/tools/split.js?v=2"></script>
-    <script src="/core/ui-handler.js"></script>
+    <script src="/core/ui-handler.js?v=1"></script>
     <script src="/core/zip-handler.js"></script>
     <script src="/assets/js/cookie-banner.js"></script>
     <script>
@@ -176,7 +176,7 @@
             },
             outputName: function (fileName, index) {
                 var base = fileName.replace(/\.pdf$/i, '');
-                return base + '-part' + (index + 1) + '.pdf';
+                return base + '-part' + String(index + 1).padStart(2, '0') + '.pdf';
             },
             statsLabel: 'Split into',
             autoRun: false

@@ -65,6 +65,17 @@
             <p style="margin-top:12px;"><strong>Resolution decides the file size.</strong> A 72 DPI page is fine on screen and blurry in print. 144 DPI is the everyday setting. 216 DPI is near print quality and produces files several times larger. Every page renders separately, so a 60-page document at high resolution will take a while and use real memory.</p>
         </section>
 
+        <section style="margin-top:52px;">
+            <h2 style="font-size:22px;margin-bottom:8px;">PDF to JPG questions</h2>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Does this converter upload my PDF?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. The file is read from disk in your browser, each page is drawn onto a canvas, and the image is saved back to disk. Nothing is sent to a server.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Will the images have selectable text?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. A JPG or PNG is a picture of a page, so there is no text layer inside it. The words cannot be selected, searched or copied, and a screen reader cannot read them. If the document has to stay searchable, keep the PDF.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Should I pick JPG or PNG?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">JPG for slides, email and anywhere file size matters. PNG is lossless and keeps edges sharp, which suits diagrams and screenshots, but the files are larger at the same resolution.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Which resolution should I use?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">72 DPI is fine for reading on screen. 144 DPI is the everyday setting and the default. 216 DPI is close to print quality, produces files several times larger, and takes noticeably longer on a long document.</p>
+        </section>
         <section style="margin-top:56px;">
             <h2 style="font-size:22px;margin-bottom:8px;">Related tools</h2>
             <div class="tool-grid">
@@ -82,7 +93,7 @@
                 </a>
                 <a class="tool-card" href="/redact-pdf/">
                     <div class="tool-title">Redact PDF<span class="tool-badge">Local</span></div>
-                    <div class="tool-desc">Remove text instead of hiding it, and verify the output.</div>
+                    <div class="tool-desc">Delete the text itself, then verify the output. The pages you mark become bitmaps, like this tool's output.</div>
                 </a>
             </div>
         </section>
@@ -126,7 +137,7 @@
     </script>
     <script src="/core/memory-manager.js"></script>
     <script src="/core/tools/pdf-to-jpg.js"></script>
-    <script src="/core/ui-handler.js"></script>
+    <script src="/core/ui-handler.js?v=1"></script>
     <script src="/core/zip-handler.js"></script>
     <script src="/assets/js/cookie-banner.js"></script>
     <script>
@@ -184,5 +195,6 @@
         });
     })();
     </script>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this converter upload my PDF?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read from disk in your browser, each page is drawn onto a canvas, and the image is saved back to disk. Nothing is sent to a server."}}, {"@type": "Question", "name": "Will the images have selectable text?", "acceptedAnswer": {"@type": "Answer", "text": "No. A JPG or PNG is a picture of a page, so there is no text layer inside it. The words cannot be selected, searched or copied, and a screen reader cannot read them. If the document has to stay searchable, keep the PDF."}}, {"@type": "Question", "name": "Should I pick JPG or PNG?", "acceptedAnswer": {"@type": "Answer", "text": "JPG for slides, email and anywhere file size matters. PNG is lossless and keeps edges sharp, which suits diagrams and screenshots, but the files are larger at the same resolution."}}, {"@type": "Question", "name": "Which resolution should I use?", "acceptedAnswer": {"@type": "Answer", "text": "72 DPI is fine for reading on screen. 144 DPI is the everyday setting and the default. 216 DPI is close to print quality, produces files several times larger, and takes noticeably longer on a long document."}}]}    </script>
 </body>
 </html>
