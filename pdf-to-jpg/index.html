@@ -127,19 +127,21 @@
     </div>
 
     <script>window._lang = 'en';</script>
-    <script src="/assets/lib/jszip.min.js"></script>
-    <script src="/assets/lib/pdf-lib.min.js"></script>
-    <script src="/assets/lib/pdf.min.js"></script>
+    <script src="/assets/lib/jszip.min.js" defer></script>
+    <script src="/assets/lib/pdf-lib.min.js" defer></script>
+    <script src="/assets/lib/pdf.min.js" defer></script>
     <script>
-    if (typeof pdfjsLib !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof pdfjsLib !== 'undefined') {
         pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/lib/pdf.worker.min.js';
-    }
+        }
+    });
     </script>
-    <script src="/core/memory-manager.js"></script>
-    <script src="/core/tools/pdf-to-jpg.js"></script>
-    <script src="/core/ui-handler.js?v=1"></script>
-    <script src="/core/zip-handler.js"></script>
-    <script src="/assets/js/cookie-banner.js"></script>
+    <script src="/core/memory-manager.js" defer></script>
+    <script src="/core/tools/pdf-to-jpg.js" defer></script>
+    <script src="/core/ui-handler.js?v=1" defer></script>
+    <script src="/core/zip-handler.js" defer></script>
+    <script src="/assets/js/cookie-banner.js" defer></script>
     <script>
     (function () {
         var outFormat = 'jpeg';
@@ -159,28 +161,30 @@
         bindRow('formatRow', 'format', function (v) { outFormat = v; });
         bindRow('qualityRow', 'scale', function (v) { outScale = parseInt(v, 10); });
 
-        UIHandler.setProcessor({
-            handler: {
-                addTask: function (file, taskId) {
-                    return PDFToImage.convert(file, {
-                        scale: outScale,
-                        quality: 0.92,
-                        format: outFormat
-                    }, function (pct) {
-                        UIHandler.updateTaskProgress(taskId, pct);
-                    }).then(function (res) {
-                        return res.pages.map(function (p) { return p.blob; });
-                    });
-                }
-            },
-            outputName: function (fileName, index) {
-                var base = fileName.replace(/\.pdf$/i, '');
-                var ext = outFormat === 'png' ? '.png' : '.jpg';
-                return base + '-page' + String(index + 1).padStart(2, '0') + ext;
-            },
-            statsLabel: 'Pages',
-            autoRun: false
-        });
+            document.addEventListener('DOMContentLoaded', function () {
+    UIHandler.setProcessor({
+                handler: {
+                    addTask: function (file, taskId) {
+                        return PDFToImage.convert(file, {
+                            scale: outScale,
+                            quality: 0.92,
+                            format: outFormat
+                        }, function (pct) {
+                            UIHandler.updateTaskProgress(taskId, pct);
+                        }).then(function (res) {
+                            return res.pages.map(function (p) { return p.blob; });
+                        });
+                    }
+                },
+                outputName: function (fileName, index) {
+                    var base = fileName.replace(/\.pdf$/i, '');
+                    var ext = outFormat === 'png' ? '.png' : '.jpg';
+                    return base + '-page' + String(index + 1).padStart(2, '0') + ext;
+                },
+                statsLabel: 'Pages',
+                autoRun: false
+            });
+    });
 
         document.getElementById('runBtn').addEventListener('click', function () {
             if (UIHandler.runPending() === 0) {

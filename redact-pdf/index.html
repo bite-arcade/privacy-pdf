@@ -103,6 +103,17 @@
             <p><strong>Scans are a different case, and the check says so.</strong> A scanned PDF has no text layer to begin with. Counting characters there returns zero no matter what you draw, and a zero that came from a missing text layer is not evidence that anything was removed. The check reads the page's text layer first and tells you which of the two zeros you are looking at: nothing to copy because the box missed the words, or nothing to copy because the page never had words. The competition does not draw that line — most tools rasterize and report success either way.</p>
         </section>
 
+        <section style="margin-top:52px;">
+            <h2 style="font-size:22px;margin-bottom:8px;">Redact questions</h2>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Does redacting a PDF here upload the file?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. The file is read from disk by the browser, the marked pages are rendered on your device, and the result is saved back to disk. Nothing is sent to a server.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Why not just draw a black box over the words?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">Because a black rectangle is only paint on top of text. The characters underneath stay in the text layer and can still be selected, searched and copied. The check button on this page counts them for you before you commit.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">What happens to the pages I mark?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">They are re-rendered as images at 144 DPI with the marked area filled black, so the page stops being text. That also removes the text you did not mark on those pages. Untouched pages are copied as-is and stay selectable.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Does the report prove the file is compliant?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. It tells you how many characters were still extractable inside your boxes before processing, and what remains after. It is not a certification, not a legal opinion, and it does not stand in for a HIPAA or records-retention process.</p>
+        </section>
         <section style="margin-top:56px;">
             <h2 style="font-size:22px;margin-bottom:8px;">Related tools</h2>
             <div class="tool-grid">
@@ -154,16 +165,18 @@
     </div>
 
     <script>window._lang = 'en';</script>
-    <script src="/assets/lib/pdf-lib.min.js"></script>
-    <script src="/assets/lib/pdf.min.js"></script>
+    <script src="/assets/lib/pdf-lib.min.js" defer></script>
+    <script src="/assets/lib/pdf.min.js" defer></script>
     <script>
-    if (typeof pdfjsLib !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/lib/pdf.worker.min.js';
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/lib/pdf.worker.min.js';
     }
+    });
     </script>
-    <script src="/core/memory-manager.js"></script>
-    <script src="/core/tools/redact.js"></script>
-    <script src="/assets/js/cookie-banner.js"></script>
+    <script src="/core/memory-manager.js" defer></script>
+    <script src="/core/tools/redact.js" defer></script>
+    <script src="/assets/js/cookie-banner.js" defer></script>
     <script>
     (function () {
         var file = null;
@@ -339,7 +352,7 @@
         });
 
         checkBtn.addEventListener('click', function () {
-            if (!file) return;
+            if (busy || !file) return;
             if (boxes.length === 0) {
                 report.innerHTML = '<div class="redact-verdict neutral">Draw at least one box first.</div>';
                 return;
@@ -407,7 +420,7 @@
         var lastReportData = null;
 
         redactBtn.addEventListener('click', function () {
-            if (!file) return;
+            if (busy || !file) return;
             if (boxes.length === 0) {
                 report.innerHTML = '<div class="redact-verdict neutral">Draw at least one box first.</div>';
                 return;
@@ -585,5 +598,6 @@
         }
     })();
     </script>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does redacting a PDF here upload the file?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read from disk by the browser, the marked pages are rendered on your device, and the result is saved back to disk. Nothing is sent to a server."}}, {"@type": "Question", "name": "Why not just draw a black box over the words?", "acceptedAnswer": {"@type": "Answer", "text": "Because a black rectangle is only paint on top of text. The characters underneath stay in the text layer and can still be selected, searched and copied. The check button on this page counts them for you before you commit."}}, {"@type": "Question", "name": "What happens to the pages I mark?", "acceptedAnswer": {"@type": "Answer", "text": "They are re-rendered as images at 144 DPI with the marked area filled black, so the page stops being text. That also removes the text you did not mark on those pages. Untouched pages are copied as-is and stay selectable."}}, {"@type": "Question", "name": "Does the report prove the file is compliant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It tells you how many characters were still extractable inside your boxes before processing, and what remains after. It is not a certification, not a legal opinion, and it does not stand in for a HIPAA or records-retention process."}}]}</script>
 </body>
 </html>
