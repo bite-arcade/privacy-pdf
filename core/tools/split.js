@@ -21,6 +21,10 @@ const PDFSplitter = {
         }
 
         const total = src.getPageCount();
+        const mode = (opts && opts.mode) || "every";
+        if (mode === "each" && total > 50) {
+            throw new Error("One file per page is capped at 50 pages. This file has " + total + ". Use Every N pages instead.");
+        }
         const segments = this._plan(total, opts || {});
         if (segments.length === 0) throw new Error('No valid page range matched. Check the format, e.g. 1-3, 5, 8-10.');
         if (segments.length > 50) throw new Error('That would create ' + segments.length + ' files. Narrow the range.');
