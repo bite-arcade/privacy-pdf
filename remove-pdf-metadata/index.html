@@ -115,7 +115,7 @@
     <script>window._lang = 'en';</script>
     <script src="/assets/lib/pdf-lib.min.js"></script>
     <script src="/core/memory-manager.js"></script>
-    <script src="/core/tools/metadata.js"></script>
+    <script src="/core/tools/metadata.js?v=11"></script>
     <script src="/assets/js/cookie-banner.js"></script>
     <script>
     (function () {
@@ -223,7 +223,11 @@
                 if (!box) return;
                 if (v.remaining.length === 0) {
                     box.className = 'redact-verdict good';
-                    box.innerText = 'Reopened the output: no Info fields with values, no XMP packet. ' + v.pageCount + ' pages intact.';
+                    var note = 'Reopened the output: no Info fields with values, no XMP packet. ' + v.pageCount + ' pages intact.';
+                    if (v.unscanned > 0) {
+                        note += ' ' + v.unscanned + ' stream(s) were too large to re-read, so those were not examined for XMP.';
+                    }
+                    box.innerText = note;
                 } else {
                     box.className = 'redact-verdict bad';
                     box.innerText = 'Still present after saving: ' + v.remaining.join(' | ');

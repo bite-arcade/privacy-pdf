@@ -131,8 +131,16 @@ const PDFMetadata = {
             }
         } catch (e) { /* 结构异常时保留 setter 的结果 */ }
 
-        if (doc.catalog.get(PDFName.of('Metadata'))) {
-            doc.catalog.delete(PDFName.of('Metadata'));
+        // 只删 catalog 里的 /Metadata 引用是不够的。PDFContext 里那条 stream 对象仍然注册着，
+        // save() 会把没被引用的对象一并写回文件，于是 XMP 原文照样留在字节里 ——
+        // 引用没了、数据还在，任何能扫全部对象的解析器或 strings 都能读出来。
+        // 必须把引用和对象本体一起删掉。
+        const xmpRef = doc.catalog.get(PDFName.of('Metadata'));
+        if (xmpRef) {
+            try { doc.catalog.delete(PDFName.of('Metadata')); } catch (e) { /* ignore */ }
+            try {
+                if (typeof doc.context.delete === 'function') doc.context.delete(xmpRef);
+            } catch (e) { /* ignore */ }
         }
 
         const bytes = await doc.save({ useObjectStreams: true, addDefaultPage: false });
@@ -156,8 +164,56 @@ const PDFMetadata = {
             if (Array.isArray(v) && v.length === 0) return;
             remaining.push(k + ': ' + v);
         });
+        // catalog 里没有 /Metadata 不代表文件里就没有 XMP 数据。
+        // 枚举所有间接对象，把已经没有引用、内容却仍是 XMP 的残留流找出来。
+        // 压缩过的流也要解一次再看，否则压缩残留会漏过去 —— 那正是最容易骗过自己的情况。
+        let orphanXmp = 0;
+        let unscanned = 0;
+        try {
+            const pairs = doc.context.enumerateIndirectObjects();
+            for (let i = 0; i < pairs.length; i++) {
+                const obj = pairs[i][1];
+                const content = obj && obj.contents;
+                if (!content || !content.length) continue;
+                if (content.length > 5 * 1024 * 1024) { unscanned++; continue; }
+                let text = null;
+                try { text = await this._streamText(obj); } catch (e) { text = null; }
+                if (text === null) { unscanned++; continue; }
+                if (text.indexOf('x:xmpmeta') !== -1 || text.indexOf('xpacket begin') !== -1) orphanXmp++;
+            }
+        } catch (e) { /* 结构异常时这一项不可用 */ }
+
         if (xmp.present) remaining.push('XMP packet still present');
-        return { remaining: remaining, hasXmp: xmp.present, pageCount: doc.getPageCount() };
+        if (orphanXmp > 0) remaining.push(orphanXmp + ' orphan XMP stream(s) still in the file');
+        return { remaining: remaining, hasXmp: xmp.present, orphanXmp: orphanXmp, unscanned: unscanned, pageCount: doc.getPageCount() };
+    },
+
+    /** 把一个 stream 还原成可读文本；解不开返回 null */
+    async _streamText(obj) {
+        const content = obj && obj.contents;
+        if (!content || !content.length) return null;
+
+        let text = null;
+        try { text = new TextDecoder('utf-8').decode(content); } catch (e) { text = null; }
+        // 未压缩的流直接就读到了
+        if (text && (text.indexOf('x:xmpmeta') !== -1 || text.indexOf('xpacket begin') !== -1)) return text;
+
+        const dict = obj.dict;
+        const filter = dict && dict.get && dict.get(PDFLib.PDFName.of('Filter'));
+        if (!filter || typeof DecompressionStream === 'undefined') return text;
+
+        // PDF 的 FlateDecode 是 zlib 包装；少数产出方写的是裸 deflate，两种都试
+        for (let i = 0; i < 2; i++) {
+            const fmt = i === 0 ? 'deflate' : 'deflate-raw';
+            try {
+                const inflated = await new Response(
+                    new Blob([content]).stream().pipeThrough(new DecompressionStream(fmt))
+                ).arrayBuffer();
+                const out = new TextDecoder('utf-8').decode(inflated);
+                if (out) return out;
+            } catch (e) { /* 换下一种格式 */ }
+        }
+        return text;
     }
 };
 window.PDFMetadata = PDFMetadata;
