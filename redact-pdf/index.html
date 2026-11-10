@@ -7,6 +7,27 @@
     <meta name="description" content="Most redaction tools only draw a black box; the text underneath can still be copied. Here you can count the characters still extractable in each box before you export.">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='60' font-size='40' fill='white' text-anchor='middle'>P</text></svg>">
+    <style>
+        .redact-report-summary {
+            max-width: 840px;
+            margin: 4px auto 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 13.5px;
+        }
+        .rrs-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 8px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #fff;
+        }
+        .rrs-row:last-child { border-bottom: none; }
+        .rrs-row span:first-child { color: #64748b; flex: 0 0 auto; }
+        .rrs-row span:last-child { color: #0f172a; font-weight: 500; text-align: right; word-break: break-all; }
+    </style>
 </head>
 <body>
     <header>
@@ -247,6 +268,7 @@
             draftEl = null;
             drawBoxes();
             report.innerHTML = '';
+            lastAnalysis = null;
         }
 
         overlay.addEventListener('mousedown', beginDrag);
@@ -310,6 +332,7 @@
             boxes = [];
             drawBoxes();
             report.innerHTML = '';
+            lastAnalysis = null;
         });
 
         checkBtn.addEventListener('click', function () {
@@ -323,6 +346,7 @@
             report.innerHTML = '<div class="redact-verdict neutral">Reading the text layer…</div>';
 
             PDFRedactor.analyze(file, boxes).then(function (res) {
+                lastAnalysis = res;
                 var html = '';
                 if (res.totalChars === 0) {
                     var noText = res.noTextPages || [];
@@ -375,6 +399,9 @@
         });
 
         var lastRedaction = null;
+        var lastAnalysis = null;
+        var lastURL = null;
+        var lastReportData = null;
 
         redactBtn.addEventListener('click', function () {
             if (!file) return;
@@ -391,43 +418,13 @@
             }).then(function (res) {
                 lastRedaction = res;
                 MemoryManager.registerBlob(res.blob);
-                var url = URL.createObjectURL(res.blob);
-                MemoryManager.registerURL(url);
-                var name = file.name.replace(/\.pdf$/i, '') + '-redacted.pdf';
-
-                var html = '<div class="redact-verdict neutral">' + res.rastered + ' page' +
-                    (res.rastered === 1 ? '' : 's') + ' turned into images, ' + res.copied +
-                    ' page' + (res.copied === 1 ? '' : 's') + ' copied unchanged. ' +
-                    (res.blob.size / 1024).toFixed(0) + ' KB.</div>';
-                html += '<div class="redact-actions"><a class="redact-btn primary" href="' + url +
-                    '" download="' + name + '">Download ' + name + '</a></div>';
-                html += '<div class="redact-verdict neutral" id="verifyBox">Opening the file again to count what is left…</div>';
-                report.innerHTML = html;
-
+                if (lastURL) URL.revokeObjectURL(lastURL);
+                lastURL = URL.createObjectURL(res.blob);
+                MemoryManager.registerURL(lastURL);
+                report.innerHTML = '<div class="redact-verdict neutral">Opening the output again to read its text layer…</div>';
                 return PDFRedactor.verify(res.blob);
             }).then(function (v) {
-                var box = document.getElementById('verifyBox');
-                if (!box) return;
-                if (v.chars === 0) {
-                    var hadText = lastRedaction ? lastRedaction.rasteredWithText : 1;
-                    if (hadText === 0) {
-                        // 原本就没有文本层。0 不是清理成功的证据。
-                        box.className = 'redact-verdict neutral';
-                        box.innerText = 'Opened the output again: 0 extractable characters. The pages you marked ' +
-                            'had no text layer before this ran either — this file appears to be a scan. Nothing was ' +
-                            'removed, because there was nothing to remove; the export only turned those pages into images.';
-                    } else {
-                        box.className = 'redact-verdict good';
-                        box.innerText = 'Opened the output again: 0 extractable characters across ' +
-                            v.pageCount + ' pages. The text layer that was on ' + hadText +
-                            ' marked page' + (hadText === 1 ? '' : 's') + ' is gone.';
-                    }
-                } else {
-                    box.className = 'redact-verdict neutral';
-                    box.innerText = v.chars + ' extractable characters remain, on ' + v.pagesWithText +
-                        ' page' + (v.pagesWithText === 1 ? '' : 's') + '. Those are the pages you did not mark — ' +
-                        'they were copied as-is. Mark them and run again if they need to go too.';
-                }
+                showResult(v);
             }).catch(function (err) {
                 report.innerHTML = '<div class="redact-verdict bad">' + (err.message || 'Redaction failed.') + '</div>';
             }).finally(function () {
@@ -435,6 +432,143 @@
                 allow();
             });
         });
+
+        function markedPageList() {
+            var list = [];
+            boxes.forEach(function (b) {
+                if (list.indexOf(b.page) === -1) list.push(b.page);
+            });
+            return list.sort(function (a, b) { return a - b; });
+        }
+
+        function stamp() {
+            var d = new Date();
+            function p(n) { return (n < 10 ? '0' : '') + n; }
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) +
+                ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ' (local)';
+        }
+
+        function showResult(v) {
+            if (!lastRedaction) return;
+            var r = lastRedaction;
+            var marked = markedPageList();
+            var src = r.srcCharsByPage || {};
+
+            var cleared = 0, scan = 0, failed = 0, measurable = 0;
+            marked.forEach(function (p) {
+                var before = src[p];
+                var after = v.perPage ? v.perPage[p - 1] : null;
+                if (before === 0) { scan++; return; }
+                measurable++;
+                if (after === 0) cleared++;
+                else if (after !== null && after > 0) failed++;
+            });
+
+            var key, cls, headline, detail;
+            if (failed > 0) {
+                key = 'NOT REDACTED'; cls = 'bad';
+                headline = failed + ' marked page' + (failed === 1 ? '' : 's') + ' still hand back extractable text.';
+                detail = 'The file went through the tool, but it is not redacted. Treat it like the original. The report lists which page and how many characters.';
+            } else if (cleared > 0) {
+                key = 'CLEARED'; cls = 'good';
+                headline = cleared + ' of ' + measurable + ' measurable marked page' +
+                    (measurable === 1 ? ' now returns 0 extractable characters.' : 's now return 0 extractable characters.');
+                detail = r.copied > 0
+                    ? 'Pages you did not mark were copied unchanged and keep their text layer.'
+                    : 'Every page you marked was rebuilt as an image.';
+            } else if (scan > 0) {
+                key = 'NOTHING TO MEASURE'; cls = 'neutral';
+                headline = 'The marked page' + (scan === 1 ? ' never had' : 's never had') + ' a text layer.';
+                detail = 'The 0 is the absence of a result, not a clean result. Those pages became images, but nothing was deleted because there was no text to delete.';
+            } else {
+                key = 'NOT MEASURED'; cls = 'neutral';
+                headline = 'No page-by-page check ran for the marked pages.';
+                detail = '';
+            }
+
+            var name = file.name.replace(/\.pdf$/i, '') + '-redacted.pdf';
+            var outKB = (r.blob.size / 1024).toFixed(0);
+            var inKB = (file.size / 1024).toFixed(0);
+            var esc = function (s) { return String(s).replace(/</g, '&lt;').replace(/&/g, '&amp;'); };
+
+            var html = '<div class="redact-verdict ' + cls + '"><strong>' + key + '</strong> — ' + headline + '</div>';
+            if (detail) html += '<div class="redact-verdict ' + cls + '" style="margin-top:-6px;">' + detail + '</div>';
+
+            html += '<div class="redact-report-summary">';
+            html += '<div class="rrs-row"><span>File</span><span>' + esc(file.name) + '</span></div>';
+            html += '<div class="rrs-row"><span>Size</span><span>' + inKB + ' KB &rarr; ' + outKB + ' KB</span></div>';
+            html += '<div class="rrs-row"><span>Rebuilt as images</span><span>' + r.rastered + ' of ' + r.pageCount + ' pages</span></div>';
+            html += '<div class="rrs-row"><span>Copied unchanged</span><span>' + r.copied + ' page' + (r.copied === 1 ? '' : 's') + '</span></div>';
+            html += '<div class="rrs-row"><span>Marked pages</span><span>page ' + marked.join(', ') + '</span></div>';
+            html += '<div class="rrs-row"><span>Text left on marked pages</span><span>' +
+                (measurable > 0 ? cleared + ' of ' + measurable + ' empty' : 'not measurable') + '</span></div>';
+            html += '<div class="rrs-row"><span>Text left in whole file</span><span>' + v.chars +
+                ' chars on ' + v.pagesWithText + ' page' + (v.pagesWithText === 1 ? '' : 's') + '</span></div>';
+            html += '</div>';
+
+            html += '<div class="redact-actions">';
+            html += '<a class="redact-btn primary" href="' + lastURL + '" download="' + name + '">Download ' + name + '</a>';
+            html += '<button class="redact-btn" id="reportBtn">Download redaction report</button>';
+            html += '</div>';
+
+            report.innerHTML = html;
+
+            lastReportData = {
+                fileName: file.name,
+                fileSizeBefore: file.size,
+                fileSizeAfter: r.blob.size,
+                pageCount: r.pageCount,
+                markedPages: marked,
+                rastered: r.rastered,
+                copied: r.copied,
+                srcCharsByPage: src,
+                analysis: lastAnalysis,
+                verify: v,
+                generatedAt: stamp()
+            };
+
+            var rb = document.getElementById('reportBtn');
+            if (rb) {
+                rb.addEventListener('click', function () {
+                    rb.disabled = true;
+                    rb.innerText = 'Building report…';
+
+                    // 没先点过 Check 的话，这里补一次框内统计，报告里不留空列
+                    var prep = Promise.resolve();
+                    if (!lastReportData.analysis && file) {
+                        prep = PDFRedactor.analyze(file, boxes).then(function (a) {
+                            lastReportData.analysis = a;
+                        }).catch(function () {});
+                    }
+
+                    prep.then(function () {
+                        return PDFRedactor.buildReport(lastReportData);
+                    }).then(function (blob) {
+                        var url = URL.createObjectURL(blob);
+                        var a = document.createElement('a');
+                        a.href = url;
+                        a.download = file.name.replace(/\.pdf$/i, '') + '-redaction-report-' + (function () {
+                            var d = new Date();
+                            return d.getFullYear() + '-' +
+                                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                                String(d.getDate()).padStart(2, '0');
+                        })() + '.pdf';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+                        rb.disabled = false;
+                        rb.innerText = 'Download redaction report';
+                    }).catch(function (err) {
+                        rb.disabled = false;
+                        rb.innerText = 'Download redaction report';
+                        report.insertAdjacentHTML('beforeend',
+                            '<div class="redact-verdict bad" style="margin-top:10px;">The report could not be built: ' +
+                            esc(err && err.message ? err.message : 'unknown error') + '</div>');
+                    });
+                });
+            }
+        }
 
         function deny() {
             redactBtn.disabled = true;
