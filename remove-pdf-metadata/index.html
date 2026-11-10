@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Remove PDF Metadata Locally — Info and XMP | PrivacyPDF</title>
     <meta name="description" content="See every field stored in your PDF, including the XMP packet most tools leave behind, then strip it without uploading the file.">
+    <link rel="canonical" href="https://privacypdf.org/remove-pdf-metadata/">
+    <link rel="alternate" hreflang="en" href="https://privacypdf.org/remove-pdf-metadata/">
+    <link rel="alternate" hreflang="x-default" href="https://privacypdf.org/remove-pdf-metadata/">
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='60' font-size='40' fill='white' text-anchor='middle'>P</text></svg>">
 </head>
 <body>
     <header>
-        <div style="width:100%;background:#dbeafe;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;row-gap:8px;">
-            <span style="color:#1e40af;font-size:14px;margin-right:6px;">More Games & Books:</span>
-            <a href="https://tiny-arcade.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Tiny Arcade</a>
-            <a href="https://bite-arcade.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Bite Arcade</a>
-            <a href="https://nicheaitool.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Niche AI Tool</a>
-            <a href="https://aifacescore.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">AI Face Score</a>
-            <a href="https://hearthveilpress.com" target="_blank" style="background:#fff;color:#2563eb;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;" rel="noopener">Hearth Veil Press</a>
-        </div>
         <div class="container header-inner">
             <a href="/" class="logo">Privacy<span>PDF</span></a>
             <nav class="nav-links">
@@ -70,6 +65,17 @@
             <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">What it does not touch: the text of the document, embedded images, annotations, or the file's structure. Metadata removal is not redaction — if a name appears in the body text, it stays there.</p>
         </section>
 
+        <section style="margin-top:52px;max-width:840px;margin-left:auto;margin-right:auto;">
+            <h2 style="font-size:20px;margin-bottom:10px;">Metadata questions</h2>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">What is XMP metadata in a PDF?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">XMP is an XML block attached to the document catalog, separate from the Info dictionary. It usually repeats the author name, the software that produced the file, and timestamps. A cleaner that touches only the Info dictionary leaves this block intact.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Does this tool remove XMP that other cleaners leave behind?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">Yes. This page reads the Info dictionary and the XMP packet, prints both, and removes both. After saving, the output is reopened and every stream is read again, so leftovers are reported instead of assumed gone.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Does removing metadata redact the text of the document?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. Metadata removal deletes hidden document properties. Names, emails or account numbers written in the body text stay in the body text. Use Redact PDF for that, then check what is left.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Are my files uploaded to a server?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. Inspection and removal both run in your browser. The file is read from disk, processed in memory, and saved back to disk. Nothing is sent to a server.</p>
+        </section>
         <section style="margin-top:56px;">
             <h2 style="font-size:22px;margin-bottom:8px;">Related tools</h2>
             <div class="tool-grid">
@@ -103,6 +109,14 @@
             <a href="https://github.com/bite-arcade/privacy-pdf" target="_blank" rel="noopener">GitHub</a>
         </div>
         <div class="copyright">© 2026 PrivacyPDF</div>
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:13px;line-height:2;color:#64748b;">
+            <span style="margin-right:8px;">More sites:</span>
+            <a href="https://tiny-arcade.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Tiny Arcade</a> &middot;
+            <a href="https://bite-arcade.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Bite Arcade</a> &middot;
+            <a href="https://nicheaitool.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Niche AI Tool</a> &middot;
+            <a href="https://aifacescore.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">AI Face Score</a> &middot;
+            <a href="https://hearthveilpress.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Hearth Veil Press</a>
+        </div>
     </footer>
 
     <div id="cookieBanner" class="cookie-banner">
@@ -240,5 +254,6 @@
         });
     })();
     </script>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is XMP metadata in a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "XMP is an XML block attached to the document catalog, separate from the Info dictionary. It usually repeats the author name, the software that produced the file, and timestamps. A cleaner that touches only the Info dictionary leaves this block intact."}}, {"@type": "Question", "name": "Does this tool remove XMP that other cleaners leave behind?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. This page reads the Info dictionary and the XMP packet, prints both, and removes both. After saving, the output is reopened and every stream is read again, so leftovers are reported instead of assumed gone."}}, {"@type": "Question", "name": "Does removing metadata redact the text of the document?", "acceptedAnswer": {"@type": "Answer", "text": "No. Metadata removal deletes hidden document properties. Names, emails or account numbers written in the body text stay in the body text. Use Redact PDF for that, then check what is left."}}, {"@type": "Question", "name": "Are my files uploaded to a server?", "acceptedAnswer": {"@type": "Answer", "text": "No. Inspection and removal both run in your browser. The file is read from disk, processed in memory, and saved back to disk. Nothing is sent to a server."}}]}    </script>
 </body>
 </html>
