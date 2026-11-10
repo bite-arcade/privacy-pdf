@@ -29,7 +29,7 @@
     <main class="container">
         <section class="hero">
             <h1>Merge PDF files without uploading them</h1>
-            <p>Pages are copied from one document to another, not re-rendered. Text stays selectable and links keep working.</p>
+            <p>Pages are copied from one document to another, not re-rendered. Text stays selectable and links keep working &mdash; unless a page was already an image, which stays an image.</p>
         </section>
 
         <div class="upload-area" id="dropZone">
@@ -55,8 +55,21 @@
         <section class="section-note" style="margin-top:48px;">
             <p><strong>What merge does and does not change.</strong> This tool copies page objects from your files into a new document. Nothing is re-encoded, so selectable text, embedded fonts, vectors, links and form fields survive the merge. The output is the same size as the sum of the inputs, minus a small amount of duplicated structure.</p>
             <p style="margin-top:12px;"><strong>Encrypted files stop the merge.</strong> A password-protected PDF has to be unlocked before its pages can be copied. If one file fails, the whole batch stops and names the file — it does not silently skip it.</p>
+            <p style="margin-top:12px;"><strong>One case the copy cannot fix.</strong> If a page is already an image — for example a page redacted earlier on this site — it stays an image after merging. Copying a page object does not rebuild a text layer it never had, so the sentence about selectable text above does not apply to those pages.</p>
+            <p style="margin-top:12px;"><strong>What happens to metadata.</strong> The author, title and XMP packet of your inputs are not carried into the merged file, because only page objects are copied. The tool does write its own Producer and Creator entry into the output. <a href="/remove-pdf-metadata/" style="color:#2563eb;">Remove Metadata</a> clears that entry too, if you want a file with no tool fingerprint.</p>
         </section>
 
+        <section style="margin-top:52px;">
+            <h2 style="font-size:22px;margin-bottom:8px;">Merge questions</h2>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Does this PDF merger upload my files?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. Merging runs in your browser. Each file is read from disk, page objects are copied into a new document in memory, and the result is saved back to disk. Nothing is sent to a server.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Will the merged PDF still have selectable text and links?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">On pages that were text, yes. This tool copies page objects instead of re-rendering them, so text, embedded fonts, vectors, links and form fields survive. A page that was already an image stays an image, because merging cannot rebuild a text layer it never had.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Can I merge a password protected PDF?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. An encrypted file has to be unlocked first. If one file cannot be opened the whole batch stops and the error names that file, instead of skipping it quietly.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">What happens to the metadata of the files I merge?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">The author, title and XMP packet of your inputs do not reach the merged file, because only page objects are copied. The tool does write its own Producer and Creator entry into the output. Remove Metadata clears that as well.</p>
+        </section>
         <section style="margin-top:56px;">
             <h2 style="font-size:22px;margin-bottom:8px;">Related tools</h2>
             <div class="tool-grid">
@@ -225,6 +238,10 @@
                 a.className = 'merge-download';
                 a.innerText = 'Download ' + name;
                 box.appendChild(a);
+                var noteEl = document.createElement('div');
+                noteEl.style.cssText = 'font-size:13px;line-height:1.6;color:#64748b;margin-top:10px;';
+                noteEl.innerHTML = 'No author or XMP from your inputs made it into this file. It does carry this tool\'s Producer entry. <a href="/remove-pdf-metadata/" style="color:#2563eb;">Remove Metadata</a> clears that too.';
+                box.appendChild(noteEl);
                 statusEl.appendChild(box);
             }).catch(function (err) {
                 statusEl.innerText = err.message || 'Merge failed.';
@@ -235,5 +252,6 @@
         });
     })();
     </script>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this PDF merger upload my files?", "acceptedAnswer": {"@type": "Answer", "text": "No. Merging runs in your browser. Each file is read from disk, page objects are copied into a new document in memory, and the result is saved back to disk. Nothing is sent to a server."}}, {"@type": "Question", "name": "Will the merged PDF still have selectable text and links?", "acceptedAnswer": {"@type": "Answer", "text": "On pages that were text, yes. This tool copies page objects instead of re-rendering them, so text, embedded fonts, vectors, links and form fields survive. A page that was already an image stays an image, because merging cannot rebuild a text layer it never had."}}, {"@type": "Question", "name": "Can I merge a password protected PDF?", "acceptedAnswer": {"@type": "Answer", "text": "No. An encrypted file has to be unlocked first. If one file cannot be opened the whole batch stops and the error names that file, instead of skipping it quietly."}}, {"@type": "Question", "name": "What happens to the metadata of the files I merge?", "acceptedAnswer": {"@type": "Answer", "text": "The author, title and XMP packet of your inputs do not reach the merged file, because only page objects are copied. The tool does write its own Producer and Creator entry into the output. Remove Metadata clears that as well."}}]}    </script>
 </body>
 </html>
