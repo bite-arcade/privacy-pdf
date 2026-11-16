@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remove PDF Metadata Locally — Info and XMP | PrivacyPDF</title>
-    <meta name="description" content="See every field stored in your PDF, including the XMP packet most tools leave behind, then strip it without uploading the file.">
+    <title>Remove PDF Metadata — Check the XMP Packet Too | PrivacyPDF</title>
+    <meta name="description" content="Strip the Info dictionary and the XMP packet in your browser, nothing uploaded. Deleting the pointer does not delete the packet, so this page decompresses every object afterwards and counts the ones still holding XMP.">
     <link rel="canonical" href="https://privacypdf.org/remove-pdf-metadata/">
     <link rel="alternate" hreflang="en" href="https://privacypdf.org/remove-pdf-metadata/">
     <link rel="alternate" hreflang="x-default" href="https://privacypdf.org/remove-pdf-metadata/">
@@ -28,8 +28,8 @@
 
     <main class="container">
         <section class="hero">
-            <h1>Remove PDF metadata, including the part most tools skip</h1>
-            <p>Two separate channels store your name: the Info dictionary and the XMP packet. Many cleaners clear the first and leave the second intact.</p>
+            <h1>Remove PDF metadata, including the XMP packet that outlives the pointer</h1>
+            <p>Your name lives in two separate places: the Info dictionary and the XMP packet. Most cleaners clear the first and leave the second alive — deleting the catalog's reference to the packet does not delete the packet, which survives as an unreferenced object inside the file. Here the check runs after the strip: every indirect object is decompressed and counted, and a stream too large to scan is reported as unscanned rather than as clean.</p>
         </section>
 
         <div class="upload-area" id="dropZone">
