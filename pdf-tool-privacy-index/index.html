@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Tool Privacy Test: 9 Tools, One Fingerprinted File | PrivacyPDF</title>
+    <meta name="description" content="I compressed the same 1.27 MB probe PDF in nine browser tools and read the output. Four returned the author name. Two returned the producer string untouched. One blanked the field but left the name in the XMP packet.">
+    <link rel="canonical" href="https://privacypdf.org/pdf-tool-privacy-index/">
+    <link rel="alternate" hreflang="en" href="https://privacypdf.org/pdf-tool-privacy-index/">
+    <link rel="alternate" hreflang="x-default" href="https://privacypdf.org/pdf-tool-privacy-index/">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='60' font-size='40' fill='white' text-anchor='middle'>P</text></svg>">
+    <style>
+        .pi-wrap{max-width:900px;margin:0 auto}
+        .pi-sum{border:1px solid #dbeafe;background:#f8fafc;border-radius:12px;padding:20px 24px;margin:8px 0 36px}
+        .pi-sum h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:#2563eb;margin:0 0 10px}
+        .pi-sum p{font-size:15px;line-height:1.7;color:#334155;margin:0 0 8px}
+        .pi-sum strong{color:#0f172a}
+        .pi-tbl{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0 10px}
+        .pi-tbl th,.pi-tbl td{padding:9px 10px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}
+        .pi-tbl th{color:#64748b;font-weight:600;background:#f8fafc;font-size:12px;letter-spacing:.02em}
+        .pi-tbl td{color:#1e293b}
+        .pi-mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+        .pi-keep{color:#b91c1c;font-weight:600}
+        .pi-clean{color:#15803d}
+        .pi-part{color:#b45309;font-weight:600}
+        .pi-note{font-size:12px;color:#64748b;line-height:1.6;margin-top:6px}
+        .pi-code{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px 18px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;margin:14px 0}
+        .pi-code span{color:#93c5fd}
+        .pi-sec{margin-top:44px}
+        .pi-sec h2{font-size:22px;color:#0f172a;margin-bottom:10px}
+        .pi-sec h3{font-size:16px;font-weight:600;color:#1e293b;margin:22px 0 6px}
+        .pi-sec p,.pi-sec li{font-size:15px;line-height:1.78;color:#334155}
+        .pi-sec p{margin:0 0 14px}
+        .pi-sec ul{margin:0 0 14px 20px}
+        .pi-tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:8px;background:#eff6ff;color:#1d4ed8;margin-left:6px;vertical-align:middle}
+        .pi-flag{border-left:3px solid #b91c1c;background:#fef2f2;padding:14px 18px;border-radius:0 8px 8px 0;margin:18px 0}
+        .pi-flag p{margin:0;font-size:14.5px}
+        @media(max-width:768px){.pi-tbl{font-size:12px}.pi-tbl th,.pi-tbl td{padding:7px 6px}}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-inner">
+            <a href="/" class="logo">Privacy<span>PDF</span></a>
+            <nav class="nav-links">
+                <a href="/">Compress</a>
+                <a href="/merge-pdf/">Merge</a>
+                <a href="/split-pdf/">Split</a>
+                <a href="/pdf-to-jpg/">PDF to JPG</a>
+                <a href="/redact-pdf/">Redact</a>
+                <a href="/pdf-tool-privacy-index/">Test results</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+    <div class="pi-wrap">
+        <section class="hero" style="padding:48px 0 20px">
+            <h1 style="font-size:34px">I compressed the same file in 9 PDF tools. Four handed my name back.</h1>
+            <p style="color:#64748b">One 1.27 MB probe PDF with five unique strings written into it, one action (compress), nine browser tools, output read byte by byte. Last tested 21 November 2026.</p>
+        </section>
+
+        <div class="pi-sum">
+            <h2>Short version</h2>
+            <p><strong>4 of 9 tools returned a file carrying <span class="pi-mono">/Author = INDEX PROBE 2026</span></strong>, the name I typed into the probe. iLovePDF, PDF Candy and PDFgear kept it in the Info dictionary; PDF2Go blanked the field but left the same name in the XMP packet.</p>
+            <p><strong>2 of 9 did not even change the producer string.</strong> PDF Candy and PDFgear returned <span class="pi-mono">PRIVACY-INDEX-PROBE-PRODUCER</span> character for character. Image streams were recompressed; the document dictionary was copied.</p>
+            <p><strong>Clearing the Author field is not deleting the name.</strong> PDF2Go is the case to remember. Open the properties panel and it looks empty. Search the raw bytes and the name is still there.</p>
+        </div>
+
+        <section class="pi-sec" style="margin-top:0">
+            <h2>The result table</h2>
+            <p>Every row is one real upload-to-download cycle in Chrome on the same machine, same day, same network. "Compress" is the one action because it is the action every one of these sites offers and the one people run without thinking.</p>
+            <table class="pi-tbl">
+                <thead>
+                    <tr>
+                        <th>Tool</th>
+                        <th>Output</th>
+                        <th>/Author</th>
+                        <th>/Title, /Subject</th>
+                        <th>/Creator, /Producer</th>
+                        <th>XMP packet</th>
+                        <th>Free limit hit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>PDF Candy</strong></td>
+                        <td>222 KB (-83%)</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept<br><span class="pi-mono">producer unchanged</span></td>
+                        <td class="pi-keep">kept</td>
+                        <td>none</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PDFgear</strong> (online)</td>
+                        <td>82.9 KB (-94%)</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept<br><span class="pi-mono">producer unchanged</span></td>
+                        <td class="pi-clean">removed</td>
+                        <td>none</td>
+                    </tr>
+                    <tr>
+                        <td><strong>iLovePDF</strong></td>
+                        <td>136 KB (-90%)</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-part">creator kept, producer set to "iLovePDF"</td>
+                        <td class="pi-clean">removed</td>
+                        <td>none</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PDF2Go</strong></td>
+                        <td>121 KB (-91%)</td>
+                        <td class="pi-part">blank</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-part">both set to "PDF2Go"</td>
+                        <td class="pi-keep">kept<br><span class="pi-mono">dc:creator still has the name</span></td>
+                        <td>none</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Adobe Acrobat</strong> (online)</td>
+                        <td>28.4 KB (-98%)</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">removed</td>
+                        <td>none, anonymous download worked</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Xodo</strong></td>
+                        <td>185 KB (-86%)</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">removed</td>
+                        <td>daily quota notice, download still worked</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PDF24</strong></td>
+                        <td>285 KB (-78%)</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">removed</td>
+                        <td>none</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sejda</strong></td>
+                        <td>224 KB (-84%)</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">removed</td>
+                        <td>3 tasks per hour</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Smallpdf</strong> <span class="pi-note">(light probe)</span></td>
+                        <td>1.04 KB (from 1.7 KB)</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">blank</td>
+                        <td class="pi-clean">removed</td>
+                        <td>locked after 1 download</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="pi-note">Smallpdf is the one row run on a light probe. Its compression step refuses to work on a 1.7 KB file that is already compressed, so the 1.27 MB probe could not be used there in a repeatable way. After the first download, the same session was blocked with a "out of free downloads" notice showing a wait of roughly 11 hours.</p>
+        </section>
+
+        <section class="pi-sec">
+            <h2>How the probe works</h2>
+            <p>I wrote a 12-page A4 PDF filled with per-page noise images, 1.27 MB, so that compression actually has something to remove. Into its Info dictionary I wrote five strings that could not occur by accident:</p>
+            <ul>
+                <li><span class="pi-mono">/Author (INDEX PROBE 2026)</span></li>
+                <li><span class="pi-mono">/Title (Probe Document for Privacy Index)</span></li>
+                <li><span class="pi-mono">/Subject (PRIVACY-INDEX-2026-PROBE)</span></li>
+                <li><span class="pi-mono">/Creator (Privacy Index Test Harness)</span></li>
+                <li><span class="pi-mono">/Producer (PRIVACY-INDEX-PROBE-PRODUCER)</span></li>
+            </ul>
+            <p>The same four values were also written into an XMP packet, so a tool that clears one and keeps the other would be caught. Each output was read three ways: the Info dictionary fields, the presence of an XMP packet, and a raw byte search for all five strings. A tool is only marked "clean" when all three are empty.</p>
+            <p>This is deliberate over-testing. Field-only checks are what a property panel shows you, and a property panel is exactly what PDF2Go defeated.</p>
+        </section>
+
+        <section class="pi-sec">
+            <h2>Three findings worth keeping</h2>
+
+            <h3>1. The blank field is the trap <span class="pi-tag">PDF2Go</span></h3>
+            <p>PDF2Go removed <span class="pi-mono">/Author</span> from the Info dictionary and left the XMP packet in place. That packet still contained <span class="pi-mono">&lt;dc:creator&gt;&lt;rdf:li&gt;INDEX PROBE 2026&lt;/rdf:li&gt;</span> and <span class="pi-mono">&lt;xmp:CreatorTool&gt;Privacy Index Test Harness&lt;/xmp:CreatorTool&gt;</span>. The Title and Subject were kept too. If you judge a file by the properties dialog, this output passes. It is not clean.</p>
+            <div class="pi-flag">
+                <p>Rule of thumb: a partial scrub is worse than no scrub, because it stops you from looking. "Author is empty" answers a different question than "the name is gone".</p>
+            </div>
+
+            <h3>2. Recompressing images is not touching the dictionary <span class="pi-tag">PDF Candy, PDFgear</span></h3>
+            <p>Both returned the five fields exactly as written, including <span class="pi-mono">/Producer</span>, which almost every other tool replaces with its own name. The most likely explanation is mechanical, not malicious: the tool rebuilds image streams inside the existing document rather than rebuilding the document, so the Info dictionary travels with the pages. The file got 83% and 94% smaller and the author name came along for the ride.</p>
+
+            <h3>3. Clean and aggressive are different things <span class="pi-tag">Adobe</span></h3>
+            <p>Adobe's online compressor took the file from 1.27 MB to 28.4 KB, a 98% cut, and returned no Info fields and no XMP packet. That is the strongest result in the table, and also the least gentle: at that size the noise images have been resampled hard. It also allowed an anonymous download, no account, which is worth noting because the page says files are processed on Adobe servers and deleted unless you sign in to save them.</p>
+        </section>
+
+        <section class="pi-sec">
+            <h2>Where the tools refused to be compared</h2>
+            <p>Three sites could not produce a comparable output, and the reason matters as much as a metadata result:</p>
+            <ul>
+                <li><strong>Soda PDF</strong> compressed the file, then replaced the download with "Create an account or sign in to instantly download your file". The free tier also only offers Regular compression, with the stronger setting marked Pro. No account, no output, nothing to inspect.</li>
+                <li><strong>Foxit's online tool</strong> returned <span class="pi-mono">Application error: a client-side exception has occurred</span> on two loads from this network. No upload interface, no test.</li>
+                <li><strong>HiPDF</strong> rendered only its navigation layer and never reached a file picker.</li>
+            </ul>
+            <p>Rows like these are not failures of the index. "You cannot get the file back without an account" is a privacy-relevant fact about the service, and it belongs next to the metadata column.</p>
+        </section>
+
+        <section class="pi-sec">
+            <h2>Check your own output in one command</h2>
+            <p>You do not need my probe to run this. Take any PDF you have already processed, and search its raw bytes for a name you know is in it:</p>
+            <div class="pi-code">strings yourfile.pdf | grep -i "your name"</div>
+            <p>If that prints a line, the name is still in the file, even if the properties dialog shows an empty author. For the structured version, read both places explicitly:</p>
+            <div class="pi-code"><span># pip install pypdf</span><br>from pypdf import PdfReader<br>r = PdfReader("yourfile.pdf")<br>print(r.metadata)          # Info dictionary<br>root = r.trailer["/Root"]<br>print("/Metadata" in root)  # XMP packet still attached?</div>
+            <p>A blank <span class="pi-mono">r.metadata</span> with <span class="pi-mono">/Metadata</span> present means somebody cleared the visible fields and left the packet, which is the PDF2Go shape. Both empty is the shape you want.</p>
+        </section>
+
+        <section class="pi-sec">
+            <h2>Limits of this test</h2>
+            <p>Stated plainly, because an index that hides its gaps is just marketing:</p>
+            <ul>
+                <li><strong>Upload evidence is indirect.</strong> I can show that the result came back from the service after a pause, and that the page describes server-side processing, but I did not capture the network requests. So "the file left the device" is documented and structural here, not packet-level proof.</li>
+                <li><strong>Desktop tools are not in the table.</strong> Ghostscript was tested separately on the same probe: it replaced <span class="pi-mono">/Producer</span> and left <span class="pi-mono">/Author</span>, <span class="pi-mono">/Title</span>, <span class="pi-mono">/Subject</span>, <span class="pi-mono">/Creator</span> and the XMP packet intact. A desktop program is not automatically the private option.</li>
+                <li><strong>One file, one action, one date.</strong> A tool can change its pipeline next week. The date at the top is the only guarantee.</li>
+                <li><strong>This site's own tools are not in the table.</strong> I am not going to grade my own compressor with a friendlier method than the one I used on everyone else. When it can be measured under the same conditions, it goes in the same table.</li>
+            </ul>
+        </section>
+
+        <section class="pi-sec">
+            <h2>Questions this test answers</h2>
+            <h3>Does compressing a PDF remove the author name?</h3>
+            <p>Not reliably. Four of the nine tools tested returned the name, either in the Info dictionary or in the XMP packet. If the file is going to a client, a court or a public post, compress first and then run a metadata check on the output, not on the input.</p>
+            <h3>Why does the properties panel show no author when the name is still there?</h3>
+            <p>Because PDFs store the name in two places. The panel reads the Info dictionary; the XMP packet is a separate XML block attached to the document catalog. A tool can empty the first and never look at the second.</p>
+            <h3>Which tools were cleanest in this test?</h3>
+            <p>Adobe Acrobat online, Xodo, PDF24, Sejda and Smallpdf returned no Info fields and no XMP packet. Adobe also cut the file the most, which is a separate question from privacy and worth weighing separately.</p>
+            <h3>Is a desktop tool automatically safer than an online one?</h3>
+            <p>No. Ghostscript, running entirely on the machine, kept the author, title, subject and creator and only replaced the producer. "Nothing was uploaded" and "nothing identifying is left" are two different claims.</p>
+        </section>
+
+        <section class="pi-sec" style="margin-top:48px">
+            <h2>Do the other half yourself</h2>
+            <p>If you are about to send a PDF out, the order that works is: compress with whichever tool you like, then check, then clean if the check fails. The check above takes one command; the cleaning can be done in the browser with nothing uploaded.</p>
+            <div class="tool-grid" style="margin-top:16px">
+                <a class="tool-card" href="/remove-pdf-metadata/">
+                    <div class="tool-title">Remove PDF Metadata<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Clears the Info dictionary and the XMP packet, then reopens the output and reports what is left.</div>
+                </a>
+                <a class="tool-card" href="/redact-pdf/">
+                    <div class="tool-title">Redact PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">For the names that are in the body text, which no metadata cleaner touches.</div>
+                </a>
+                <a class="tool-card" href="/">
+                    <div class="tool-title">Compress PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Shrinks the file in the browser and reports its own metadata behavior honestly.</div>
+                </a>
+                <a class="tool-card" href="/pdf-to-jpg/">
+                    <div class="tool-title">PDF to JPG<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Rasterizing drops the dictionary entirely, which is one way to be certain.</div>
+                </a>
+            </div>
+        </section>
+
+        <p class="pi-note" style="margin-top:34px">Method notes: probe file 1.27 MB, 12 pages, noise imagery; action: compress at each site's default or free setting; readout: Info dictionary, XMP presence, raw byte search for five unique strings. Tools were used through their public web interfaces with no account except where noted. This page was written by the site owner; the tools tested are third-party products and no affiliate links are used here. Prices and free limits change without notice, and only the date above tells you when these numbers were true.</p>
+    </div>
+    </main>
+
+    <footer class="container">
+        <div class="footer-links">
+            <a href="/about">About</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/disclaimer">Disclaimer</a>
+            <a href="/guide">FAQ</a>
+            <a href="https://github.com/bite-arcade/privacy-pdf" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="copyright">© 2026 PrivacyPDF</div>
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:13px;line-height:2;color:#64748b;">
+            <span style="margin-right:8px;">More sites:</span>
+            <a href="https://tiny-arcade.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Tiny Arcade</a> &middot;
+            <a href="https://bite-arcade.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Bite Arcade</a> &middot;
+            <a href="https://nicheaitool.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Niche AI Tool</a> &middot;
+            <a href="https://aifacescore.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">AI Face Score</a> &middot;
+            <a href="https://hearthveilpress.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Hearth Veil Press</a>
+        </div>
+    </footer>
+
+    <div id="cookieBanner" class="cookie-banner">
+        <div class="cookie-inner">
+            <p class="cookie-text">This site uses essential cookies only. No tracking.</p>
+            <button id="cookieAccept" class="cookie-btn">OK</button>
+        </div>
+    </div>
+
+    <script>window._lang = 'en';</script>
+    <script src="/assets/js/cookie-banner.js" defer></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does compressing a PDF remove the author name?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not reliably. Four of the nine tools tested returned the name, either in the Info dictionary or in the XMP packet. Compress first, then run a metadata check on the output rather than the input."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does the properties panel show no author when the name is still there?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PDFs store the name in two places: the Info dictionary, which the properties panel reads, and the XMP packet, a separate XML block attached to the document catalog. A tool can empty the first field and never look at the second."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which PDF tools returned a clean file in this test?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Adobe Acrobat online, Xodo, PDF24, Sejda and Smallpdf returned no Info dictionary fields and no XMP packet on the 21 November 2026 test. Adobe also produced the smallest file."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is a desktop PDF tool safer than an online one?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not automatically. Ghostscript running locally kept the author, title, subject and creator and replaced only the producer. Not uploading the file and not leaving identifying data in it are two separate properties."
+          }
+        }
+      ]
+    }
+    </script>
+</body>
+</html>
