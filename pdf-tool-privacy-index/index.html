@@ -57,14 +57,14 @@
     <main class="container">
     <div class="pi-wrap">
         <section class="hero" style="padding:48px 0 20px">
-            <h1 style="font-size:34px">I compressed the same file in 9 PDF tools. Four handed my name back.</h1>
-            <p style="color:#64748b">One 1.27 MB probe PDF with five unique strings written into it, one action (compress), nine browser tools, output read byte by byte. Last tested 21 November 2026.</p>
+            <h1 style="font-size:34px">I compressed the same file in 9 PDF tools. Seven handed a version of my name back.</h1>
+            <p style="color:#64748b">One 1.27 MB probe PDF with five unique strings written into it, one action (compress), nine browser tools, output read with a full parser and re-read byte by byte. Last tested 21 November 2026.</p>
         </section>
 
         <div class="pi-sum">
             <h2>Short version</h2>
-            <p><strong>4 of 9 tools returned a file carrying <span class="pi-mono">/Author = INDEX PROBE 2026</span></strong>, the name I typed into the probe. iLovePDF, PDF Candy and PDFgear kept it in the Info dictionary; PDF2Go blanked the field but left the same name in the XMP packet.</p>
-            <p><strong>2 of 9 did not even change the producer string.</strong> PDF Candy and PDFgear returned <span class="pi-mono">PRIVACY-INDEX-PROBE-PRODUCER</span> character for character. Image streams were recompressed; the document dictionary was copied.</p>
+            <p><strong>7 of 9 tools returned a file carrying <span class="pi-mono">/Author = INDEX PROBE 2026</span></strong> somewhere, the name I typed into the probe. Six kept it in the Info dictionary that the properties panel reads — iLovePDF, Sejda, PDF24, PDF Candy, Xodo and PDFgear. PDF2Go blanked the field and left the same name in the XMP packet.</p>
+            <p><strong>4 of 9 left the original producer string in the file.</strong> PDFgear, PDF24 and Xodo returned <span class="pi-mono">PRIVACY-INDEX-PROBE-PRODUCER</span> character for character in the Info dictionary; PDF Candy reset its panel to "PDF Candy" and left the old dictionary standing as object 18. Image streams were recompressed; the document dictionary rode along.</p>
             <p><strong>Clearing the Author field is not deleting the name.</strong> PDF2Go is the case to remember. Open the properties panel and it looks empty. Search the raw bytes and the name is still there.</p>
         </div>
 
@@ -89,7 +89,7 @@
                         <td>222 KB (-83%)</td>
                         <td class="pi-keep">kept</td>
                         <td class="pi-keep">kept</td>
-                        <td class="pi-keep">kept<br><span class="pi-mono">producer unchanged</span></td>
+                        <td class="pi-part">both set to "PDF Candy"<br><span class="pi-mono">original dictionary left unreferenced at 216 KB</span></td>
                         <td class="pi-keep">kept</td>
                         <td>none</td>
                     </tr>
@@ -132,27 +132,27 @@
                     <tr>
                         <td><strong>Xodo</strong></td>
                         <td>185 KB (-86%)</td>
-                        <td class="pi-clean">blank</td>
-                        <td class="pi-clean">blank</td>
-                        <td class="pi-clean">blank</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept<br><span class="pi-mono">producer unchanged</span></td>
                         <td class="pi-clean">removed</td>
                         <td>daily quota notice, download still worked</td>
                     </tr>
                     <tr>
                         <td><strong>PDF24</strong></td>
                         <td>285 KB (-78%)</td>
-                        <td class="pi-clean">blank</td>
-                        <td class="pi-clean">blank</td>
-                        <td class="pi-clean">blank</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept<br><span class="pi-mono">producer unchanged</span></td>
                         <td class="pi-clean">removed</td>
                         <td>none</td>
                     </tr>
                     <tr>
                         <td><strong>Sejda</strong></td>
                         <td>224 KB (-84%)</td>
-                        <td class="pi-clean">blank</td>
-                        <td class="pi-clean">blank</td>
-                        <td class="pi-clean">blank</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-keep">kept</td>
+                        <td class="pi-part">creator kept, producer set to "3.0.42 (5.1.27)"</td>
                         <td class="pi-clean">removed</td>
                         <td>3 tasks per hour</td>
                     </tr>
@@ -161,13 +161,14 @@
                         <td>1.04 KB (from 1.7 KB)</td>
                         <td class="pi-clean">blank</td>
                         <td class="pi-clean">blank</td>
-                        <td class="pi-clean">blank</td>
+                        <td class="pi-part">blank, producer set to "Pdftools SDK"</td>
                         <td class="pi-clean">removed</td>
                         <td>locked after 1 download</td>
                     </tr>
                 </tbody>
             </table>
             <p class="pi-note">Smallpdf is the one row run on a light probe. Its compression step refuses to work on a 1.7 KB file that is already compressed, so the 1.27 MB probe could not be used there in a repeatable way. After the first download, the same session was blocked with a "out of free downloads" notice showing a wait of roughly 11 hours.</p>
+            <p class="pi-note" style="border-left:3px solid #f59e0b;padding-left:12px;">Correction, 21 November 2026. The first version of this table read each output with a raw byte search only. Sejda, PDF24 and Xodo came back clean that way and are marked "kept" above: all three had put the values inside compressed object streams, where a byte search cannot see them and a PDF viewer reads them without trouble. The table has been re-read with a full parser. One side effect: six of the nine tools keep the <span class="pi-mono">/Author</span> string, not four.</p>
         </section>
 
         <section class="pi-sec">
@@ -180,7 +181,7 @@
                 <li><span class="pi-mono">/Creator (Privacy Index Test Harness)</span></li>
                 <li><span class="pi-mono">/Producer (PRIVACY-INDEX-PROBE-PRODUCER)</span></li>
             </ul>
-            <p>The same four values were also written into an XMP packet, so a tool that clears one and keeps the other would be caught. Each output was read three ways: the Info dictionary fields, the presence of an XMP packet, and a raw byte search for all five strings. A tool is only marked "clean" when all three are empty.</p>
+            <p>The same four values were also written into an XMP packet, so a tool that clears one and keeps the other would be caught. Each output was read three ways: the Info dictionary as the document a viewer opens, the presence of an XMP packet, and a raw byte search for all five strings. A tool is only marked "clean" when all three are empty. The byte search is the weakest of the three, which is what the correction note above is about: values can sit inside compressed object streams where no byte search will ever see them.</p>
             <p>This is deliberate over-testing. Field-only checks are what a property panel shows you, and a property panel is exactly what PDF2Go defeated.</p>
         </section>
 
@@ -193,8 +194,9 @@
                 <p>Rule of thumb: a partial scrub is worse than no scrub, because it stops you from looking. "Author is empty" answers a different question than "the name is gone".</p>
             </div>
 
-            <h3>2. Recompressing images is not touching the dictionary <span class="pi-tag">PDF Candy, PDFgear</span></h3>
-            <p>Both returned the five fields exactly as written, including <span class="pi-mono">/Producer</span>, which almost every other tool replaces with its own name. The most likely explanation is mechanical, not malicious: the tool rebuilds image streams inside the existing document rather than rebuilding the document, so the Info dictionary travels with the pages. The file got 83% and 94% smaller and the author name came along for the ride.</p>
+            <h3>2. Recompressing images is not touching the dictionary <span class="pi-tag">PDFgear, PDF24, Xodo</span></h3>
+            <p>All three returned the five fields exactly as written, including <span class="pi-mono">/Producer</span>, which almost every other tool replaces with its own name. The most likely explanation is mechanical, not malicious: the tool rebuilds image streams inside the existing document rather than rebuilding the document, so the Info dictionary travels with the pages. The files got 78% to 94% smaller and the author name came along for the ride. Xodo's case is the instructive one: 189 KB of output, every string still readable, and not one of them present as plain bytes, because all of it sits inside a compressed object stream.</p>
+            <p>PDF Candy is the same failure with a better disguise. Its properties panel shows "PDF Candy" as Creator and Producer, and the original <span class="pi-mono">/Author</span> and <span class="pi-mono">/Producer</span> are still in the file — as object 18, sitting 216 KB into a 226 KB document, referenced by nothing. Anyone who opens the file sees a clean panel. Anyone who reads the bytes sees the probe.</p>
 
             <h3>3. Clean and aggressive are different things <span class="pi-tag">Adobe</span></h3>
             <p>Adobe's online compressor took the file from 1.27 MB to 28.4 KB, a 98% cut, and returned no Info fields and no XMP packet. That is the strongest result in the table, and also the least gentle: at that size the noise images have been resampled hard. It also allowed an anonymous download, no account, which is worth noting because the page says files are processed on Adobe servers and deleted unless you sign in to save them.</p>
@@ -234,11 +236,11 @@
         <section class="pi-sec">
             <h2>Questions this test answers</h2>
             <h3>Does compressing a PDF remove the author name?</h3>
-            <p>Not reliably. Four of the nine tools tested returned the name, either in the Info dictionary or in the XMP packet. If the file is going to a client, a court or a public post, compress first and then run a metadata check on the output, not on the input.</p>
+            <p>Not reliably. Six of the nine tools tested returned the name, in the Info dictionary, in an unreferenced dictionary, or in the XMP packet. If the file is going to a client, a court or a public post, compress first and then run a metadata check on the output, not on the input.</p>
             <h3>Why does the properties panel show no author when the name is still there?</h3>
             <p>Because PDFs store the name in two places. The panel reads the Info dictionary; the XMP packet is a separate XML block attached to the document catalog. A tool can empty the first and never look at the second.</p>
             <h3>Which tools were cleanest in this test?</h3>
-            <p>Adobe Acrobat online, Xodo, PDF24, Sejda and Smallpdf returned no Info fields and no XMP packet. Adobe also cut the file the most, which is a separate question from privacy and worth weighing separately.</p>
+            <p>Adobe Acrobat online and Smallpdf were the only two that returned no Info fields and no XMP packet; Smallpdf left its own producer string ("Pdftools SDK") in the dictionary. Adobe also cut the file the most, which is a separate question from privacy and worth weighing separately.</p>
             <h3>Is a desktop tool automatically safer than an online one?</h3>
             <p>No. Ghostscript, running entirely on the machine, kept the author, title, subject and creator and only replaced the producer. "Nothing was uploaded" and "nothing identifying is left" are two different claims.</p>
         </section>
@@ -309,7 +311,7 @@
           "name": "Does compressing a PDF remove the author name?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Not reliably. Four of the nine tools tested returned the name, either in the Info dictionary or in the XMP packet. Compress first, then run a metadata check on the output rather than the input."
+            "text": "Not reliably. Six of the nine tools tested returned the name — in the Info dictionary, in an unreferenced dictionary, or in the XMP packet. Compress first, then run a metadata check on the output rather than the input."
           }
         },
         {
@@ -325,7 +327,7 @@
           "name": "Which PDF tools returned a clean file in this test?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Adobe Acrobat online, Xodo, PDF24, Sejda and Smallpdf returned no Info dictionary fields and no XMP packet on the 21 November 2026 test. Adobe also produced the smallest file."
+            "text": "Only Adobe Acrobat online and Smallpdf returned no Info dictionary fields and no XMP packet on the 21 November 2026 test; Smallpdf still wrote its own producer string. Sejda, PDF24 and Xodo looked clean on the first byte-level read and were later found to have kept every Info field inside compressed object streams. Adobe also produced the smallest file."
           }
         },
         {

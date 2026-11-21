@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Metadata Checker — Test Any File, Including One Another Tool Saved</title>
+    <meta name="description" content="Drop a PDF and see what it still says about you: Info dictionary fields, the XMP packet, orphaned XMP left by cleaners, retained revisions, and the producer fingerprint. Runs in the browser, nothing uploaded.">
+    <link rel="canonical" href="https://privacypdf.org/pdf-metadata-checker/">
+    <link rel="alternate" hreflang="en" href="https://privacypdf.org/pdf-metadata-checker/">
+    <link rel="alternate" hreflang="x-default" href="https://privacypdf.org/pdf-metadata-checker/">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563eb'/><text x='50' y='60' font-size='40' fill='white' text-anchor='middle'>P</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="container header-inner">
+            <a href="/" class="logo">Privacy<span>PDF</span></a>
+            <nav class="nav-links">
+                <a href="/">Compress</a>
+                <a href="/merge-pdf/">Merge</a>
+                <a href="/split-pdf/">Split</a>
+                <a href="/pdf-to-jpg/">PDF to JPG</a>
+                <a href="/redact-pdf/">Redact</a>
+                <a href="/remove-pdf-metadata/">Metadata</a>
+                <a href="/pdf-tool-privacy-index/">Test results</a>
+                <a href="/cn/" style="color:#94a3b8;font-size:13px;">中文</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>PDF metadata checker: what does this file still say?</h1>
+            <p>Seven checks, run on the bytes you hand it: the Info dictionary a viewer reads, Info dictionaries nothing points to any more, the XMP packet, XMP a cleaner left behind but unreferenced, the number of revisions still in the file, embedded attachments, and the producer fingerprint. Nothing is uploaded and nothing is modified.</p>
+        </section>
+
+        <div class="upload-area" id="dropZone">
+            <div class="upload-icon">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 7V5a2 2 0 0 1 2-2h3l2 2h5a2 2 0 0 1 2 2v9"/><path d="M2 12h9v4H2z"/><circle cx="15" cy="17" r="3.4"/><path d="M17.6 19.6 20 22"/>
+                </svg>
+            </div>
+            <div class="upload-text">Click or drop one PDF file here</div>
+            <div class="upload-desc">Read-only. Run it on the output of any online tool and compare.</div>
+            <input type="file" id="fileInput" accept=".pdf,application/pdf">
+        </div>
+        <p style="text-align:center;font-size:13px;color:#64748b;margin:-24px auto 40px;max-width:760px;">No file to hand? <a href="/assets/probe-sample.pdf" download style="color:#2563eb;">Download the probe PDF</a> used in the <a href="/pdf-tool-privacy-index/" style="color:#2563eb;">9-tool comparison</a> — it carries five planted marker strings, so you can see the checker report every one of them.</p>
+
+        <section id="resultPanel" style="display:none;max-width:880px;margin:0 auto;"></section>
+
+        <section style="margin-top:56px;max-width:880px;margin-left:auto;margin-right:auto;">
+            <h2 style="font-size:22px;margin-bottom:10px;">What the seven checks look for</h2>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">A PDF can describe itself in more than one place, and the visible properties panel only shows the first one. These are the seven that matter, in the order the checker reports them:</p>
+            <ol style="font-size:15px;line-height:1.85;color:#334155;margin:14px 0 0 20px;">
+                <li><strong>Info dictionary.</strong> <code>/Title /Author /Subject /Keywords /Creator /Producer</code> plus the two dates. This is what the properties panel shows, and the only place most cleaners touch.</li>
+                <li><strong>Info dictionaries nothing points to.</strong> A cleaner can reset the trailer's <code>/Info</code> pointer and still leave the old dictionary standing in the file as an object with no reference — the author name is gone from the panel and still in the bytes. This check reads the raw bytes for <code>/Author</code>, <code>/Title</code>, <code>/Subject</code>, <code>/Creator</code>, <code>/Producer</code> and <code>/Keywords</code> values that do not match what a viewer shows.</li>
+                <li><strong>Referenced XMP packet.</strong> An XML block reached through the catalog's <code>/Metadata</code> entry. It usually repeats <code>dc:creator</code>, <code>xmp:CreatorTool</code> and <code>pdf:Producer</code>.</li>
+                <li><strong>Orphaned XMP.</strong> Deleting the pointer does not delete the packet. Cleaners that only unlink <code>/Metadata</code> leave the XML sitting in the file as an unreferenced stream; this check enumerates every indirect object and decompresses it to look. It is the difference between "the properties panel is empty" and "the bytes are gone".</li>
+                <li><strong>Retained revisions.</strong> PDF is append-only, so each save can leave the previous version behind. Two or more <code>%%EOF</code> markers means earlier revisions are still in the file, and an earlier revision is an earlier author name.</li>
+                <li><strong>Page-level and document-level extras.</strong> <code>/PieceInfo</code> from layout tools, and <code>/EmbeddedFiles</code> attachments — both carry names that never appear in the properties panel.</li>
+                <li><strong>Producer fingerprint.</strong> "Microsoft Word 2016" or "iLovePDF" on its own identifies which machine class and which tool handled the file, even with the author field blank.</li>
+            </ol>
+        </section>
+
+        <section style="margin-top:48px;max-width:880px;margin-left:auto;margin-right:auto;">
+            <h2 style="font-size:22px;margin-bottom:10px;">Why a checker and not another cleaner</h2>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">Every online tool grades its own homework. In the nine-tool comparison behind this site, PDF2Go emptied the Author field in the properties panel while <code>dc:creator</code> and <code>xmp:CreatorTool</code> stayed in the XMP packet, PDF Candy reset the trailer's Info pointer and left the original dictionary standing as object 18 with nothing pointing at it, and PDFgear returned the original <code>/Producer</code> string byte for byte. All three look clean to anyone who reopens the file and glances at the properties.</p>
+            <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">Our own first pass got this wrong, which is the honest reason this page exists. The 9-tool table was first read with a byte search, because that is what a hex editor gives you. Three tools came back clean that way — Sejda, PDF24 and Xodo — and all three had kept every Info field; the names were inside compressed object streams, invisible to a byte search and perfectly visible to a viewer. The table has been re-read with a full parser and corrected. A checker that cannot disagree with its author is decoration.</p>
+            <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">So this page does not clean anything. It reports, and it reports the unreferenced leftovers that a cleaner's own success message cannot see. Run it on the file you were about to send, or on the file a tool just handed back: <a href="/pdf-tool-privacy-index/" style="color:#2563eb;">the 9-tool test</a> tells you which tools are worth checking first.</p>
+            <p style="font-size:15px;line-height:1.75;color:#334155;margin-top:14px;">If a name is in the body text rather than the metadata, no checker will help — that is a redaction problem, and <a href="/redact-pdf/" style="color:#2563eb;">the redaction tool</a> removes the text instead of covering it.</p>
+        </section>
+
+        <section style="margin-top:48px;max-width:880px;margin-left:auto;margin-right:auto;">
+            <h2 style="font-size:22px;margin-bottom:10px;">Limits, stated plainly</h2>
+            <ul style="font-size:15px;line-height:1.85;color:#334155;margin:14px 0 0 20px;">
+                <li>Checks 2, 5, 6 and 7 read raw bytes, so a dictionary packed inside a compressed object stream can be missed. The report says "not found", not "absent". Checks 1, 3 and 4 parse the object graph instead, which is how the compressed-stream case is caught at all.</li>
+                <li>XMP streams larger than 5 MB, and files larger than 64 MB, are reported as unscanned rather than counted as clean.</li>
+                <li>The checker never writes to the file. If the report finds a leak, fixing it is a separate step.</li>
+                <li>Metadata is one leak, not all of them: fonts, page geometry and the text itself are untouched by any of this.</li>
+            </ul>
+        </section>
+
+        <section style="margin-top:48px;max-width:880px;margin-left:auto;margin-right:auto;">
+            <h2 style="font-size:22px;margin-bottom:10px;">Metadata questions</h2>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">How is this different from the remove-metadata tool?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">The <a href="/remove-pdf-metadata/" style="color:#2563eb;">remove tool</a> rewrites the file and clears both channels. This page only reads it. Keeping them separate is the point: a cleaner that also grades itself is the failure this page was built to catch.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Does it work on a file another tool already compressed?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">Yes, and that is the main use. Compression is not metadata removal: several tools in the 9-tool test returned files with the original author or producer intact. Run the checker on the download before you send it anywhere.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">What is an orphaned XMP packet?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">When a cleaner deletes the catalog's <code>/Metadata</code> reference, the XML stream itself can remain registered as an object and get written back on save. The properties panel shows nothing; the bytes still contain the author. This check decompresses every stream to find that case.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">What is an orphaned Info dictionary?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">The trailer's <code>/Info</code> entry is a pointer, not the dictionary itself. A cleaner that resets the pointer leaves the original dictionary in the file as an object nobody references: the properties panel shows new values, the old author name is still on disk. PDF Candy's output in the 9-tool test does exactly this — object 18, 216 KB into a 226 KB file, carrying the original <code>/Author</code> and <code>/Producer</code>.</p>
+            <h3 style="font-size:15px;font-weight:600;color:#1e293b;margin:16px 0 4px;">Are my files uploaded?</h3>
+            <p style="font-size:15px;line-height:1.75;color:#334155;">No. The file is read from disk into memory and parsed in the browser. No request leaves the machine, and no copy is stored.</p>
+        </section>
+
+        <section style="margin-top:56px;">
+            <h2 style="font-size:22px;margin-bottom:8px;">Related tools</h2>
+            <div class="tool-grid">
+                <a class="tool-card" href="/remove-pdf-metadata/">
+                    <div class="tool-title">Remove Metadata<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Clear the Info dictionary and the XMP packet, then reopen the output and read it again.</div>
+                </a>
+                <a class="tool-card" href="/redact-pdf/">
+                    <div class="tool-title">Redact PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Remove the text instead of painting over it, for names that live in the page body.</div>
+                </a>
+                <a class="tool-card" href="/pdf-tool-privacy-index/">
+                    <div class="tool-title">PDF Tool Privacy Test<span class="tool-badge">9 tools</span></div>
+                    <div class="tool-desc">One probe file, nine browser compressors, every output re-read with a full parser.</div>
+                </a>
+                <a class="tool-card" href="/">
+                    <div class="tool-title">Compress PDF<span class="tool-badge">Local</span></div>
+                    <div class="tool-desc">Shrink the file, then run the checker on the result before sending it.</div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container">
+        <div class="footer-links">
+            <a href="/about">About</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/disclaimer">Disclaimer</a>
+            <a href="/guide">FAQ</a>
+            <a href="https://github.com/bite-arcade/privacy-pdf" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="copyright">© 2026 PrivacyPDF</div>
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:13px;line-height:2;color:#64748b;text-align:center;">
+            <span style="margin-right:8px;">More sites:</span>
+            <a href="https://tiny-arcade.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Tiny Arcade</a> &middot;
+            <a href="https://bite-arcade.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Bite Arcade</a> &middot;
+            <a href="https://nicheaitool.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Niche AI Tool</a> &middot;
+            <a href="https://aifacescore.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">AI Face Score</a> &middot;
+            <a href="https://hearthveilpress.com" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">Hearth Veil Press</a>
+        </div>
+    </footer>
+
+    <div id="cookieBanner" class="cookie-banner">
+        <div class="cookie-inner">
+            <p class="cookie-text">This site uses essential cookies only. No tracking.</p>
+            <button id="cookieAccept" class="cookie-btn">OK</button>
+        </div>
+    </div>
+
+    <script>window._lang = 'en';</script>
+    <script src="/assets/lib/pdf.min.js" defer></script>
+    <script src="/assets/js/pdf-worker-init.js" defer></script>
+    <script src="/assets/lib/pdf-lib.min.js" defer></script>
+    <script src="/assets/js/metadata-checker.js?v=2" defer></script>
+    <script src="/assets/js/cookie-banner.js" defer></script>
+    <script>
+    (function () {
+        var panel = document.getElementById('resultPanel');
+        var SEV = {
+            red: 'background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;',
+            amber: 'background:#fffbeb;border:1px solid #fde68a;color:#92400e;',
+            green: 'background:#ecfdf5;border:1px solid #a7f3d0;color:#047857;'
+        };
+
+        function esc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        function chip(sev, label) {
+            return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;' + SEV[sev] + '">' + esc(label) + '</span>';
+        }
+        function row(check, sev, label, detail) {
+            return '<tr><th style="width:24%;">' + esc(check) + '</th><td>' + chip(sev, label) +
+                (detail ? '<div style="margin-top:6px;font-size:13px;line-height:1.6;color:#334155;">' + detail + '</div>' : '') +
+                '</td></tr>';
+        }
+
+        function render(r) {
+            var red = 0, amber = 0;
+            if (r.infoValues.length) red++;
+            if (r.orphanInfo > 0) red++;
+            if (r.xmpPresent) red++;
+            if (r.orphanXmp > 0) red++;
+            if (r.revisions > 1) amber++;
+            if (r.pieceInfo || r.embedded) amber++;
+            if (r.fieldHits.length || r.rawHits.length) amber++;
+
+            var verdict;
+            if (red > 0) {
+                verdict = '<strong>' + red + ' channel' + (red === 1 ? ' still carries' : 's still carry') + ' identifying data.</strong> ' +
+                    'Someone can read a name, a title or a tool out of this file without opening the page. Fix it before it leaves the machine.';
+            } else if (amber > 0) {
+                verdict = '<strong>No current name found, but the file still tells its origin.</strong> ' +
+                    'Raw bytes, retained revisions or extras remain. Acceptable internally, worth cleaning before sending.';
+            } else {
+                verdict = '<strong>Nothing identifying in the seven checks.</strong> ' +
+                    'No Info values, no XMP in any revision, one content revision, no producer fingerprint. Metadata is not the whole story — the page text is still there.';
+            }
+
+            var html = '<div class="redact-verdict ' + (red ? 'bad' : (amber ? 'neutral' : 'good')) + '">' + verdict + '</div>';
+            html += '<div class="meta-note" style="margin-top:8px;">' + esc(r.name) + ' — ' + (r.size / 1024).toFixed(0) + ' KB, ' + r.pages + ' page' + (r.pages === 1 ? '' : 's') +
+                (r.truncated ? ', raw scan limited to the first 64 MB' : '') +
+                (r.viewerRead ? '' : ' · the viewer parser failed, so fields come from a structural parse and may reflect an older revision') + '</div>';
+
+            html += '<table class="meta-table">';
+            html += row('Info dictionary', r.infoValues.length ? 'red' : 'green',
+                r.infoValues.length ? r.infoValues.length + ' field' + (r.infoValues.length === 1 ? '' : 's') + ' set' : 'no values',
+                r.infoValues.length ? esc(r.infoValues.join('  ·  ')) : 'Title, Author, Subject, Keywords, Creator, Producer are empty in the revision a viewer reads.');
+            html += row('Info dictionary the viewer does not read', r.orphanInfo > 0 ? 'red' : 'green',
+                r.orphanInfo > 0 ? r.orphanInfo + ' value' + (r.orphanInfo === 1 ? '' : 's') + ' in the bytes' : 'none found',
+                r.orphanInfo > 0
+                    ? (r.firstOrphanInfo ? 'Not shown in the properties panel, still in the file: ' + esc(r.firstOrphanInfo.map(function (f) { return '/' + f.key + ' = ' + f.value; }).join('  ·  ')) : 'An Info-shaped dictionary exists in the bytes with no reference from the current document.')
+                    : 'Every Info value in the bytes matches the fields a viewer shows.');
+            html += row('XMP packet (referenced)', r.xmpPresent ? 'red' : 'green',
+                r.xmpPresent ? 'present' : 'not present',
+                r.xmpPresent
+                    ? (r.xmpFields.length
+                        ? esc(r.xmpFields.map(function (f) { return f.key + ' = ' + f.value; }).join('  ·  '))
+                        : (r.xmpText ? 'Packet present, no readable field values.' : 'Packet present but compressed; its fields are not listed here, and it is not counted as clean.'))
+                    : 'The catalog carries no /Metadata reference.');
+            html += row('XMP left behind (unreferenced)', r.orphanXmp > 0 ? 'red' : 'green',
+                r.orphanXmp > 0 ? r.orphanXmp + ' stream' + (r.orphanXmp === 1 ? '' : 's') + ' found' : 'none found',
+                r.orphanXmp > 0
+                    ? (r.firstOrphan ? esc(r.firstOrphan.slice(0, 4).map(function (f) { return f.key + ' = ' + f.value; }).join('  ·  ')) : 'XML matching xmpmeta is inside the file but no longer reachable from the catalog.')
+                    : (r.unscanned > 0 ? r.unscanned + ' stream(s) were too large to decompress, so this row is incomplete.' : 'Every stream was decompressed and none contained XMP.'));
+            html += row('Retained revisions', r.revisions > 1 ? 'amber' : 'green',
+                r.revisions + ' content revision' + (r.revisions === 1 ? '' : 's'),
+                r.revisions > 1
+                    ? r.eofCount + ' revision markers: earlier bytes are still recoverable, and an earlier revision is an earlier author name.'
+                    : (r.linearized ? 'Linearized file: two xref sections, one content revision.' : 'Written once. No earlier revision in the bytes.'));
+            html += row('Page and document extras', (r.pieceInfo || r.embedded) ? 'amber' : 'green',
+                (r.pieceInfo || r.embedded) ? 'found' : 'none found',
+                (r.pieceInfo ? '/PieceInfo is present (layout-tool private data). ' : '') +
+                (r.embedded ? '/EmbeddedFiles is present (attachments travel with the file).' : '') ||
+                'No /PieceInfo and no /EmbeddedFiles in the scanned bytes.');
+            html += row('Producer fingerprint', (r.fieldHits.length || r.rawHits.length) ? 'amber' : 'green',
+                r.fieldHits.length ? r.fieldHits.length + ' in current metadata' : (r.rawHits.length ? r.rawHits.length + ' in raw bytes only' : 'none'),
+                (r.fieldHits.length ? esc('In the fields a viewer shows: ' + r.fieldHits.join(', ')) : '') +
+                (r.rawHits.length ? '<div style="margin-top:4px;">' + esc('In the bytes but not in the current fields (an earlier revision or a page stream): ' + r.rawHits.join(', ')) + '</div>' : '') ||
+                'No known producer or tool name in the fields or streams.');
+            html += '</table>';
+
+            html += '<div class="redact-actions"><a class="redact-btn primary" href="/remove-pdf-metadata/">Strip both channels</a>' +
+                '<a class="redact-btn" href="/pdf-tool-privacy-index/">See the 9-tool test</a></div>';
+            html += '<p style="font-size:13px;line-height:1.7;color:#64748b;margin-top:4px;">This checker does not modify the file. Stripping happens on the remove-metadata page, which reopens its own output and reads it again.</p>';
+            panel.innerHTML = html;
+            panel.style.display = 'block';
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function loadFile(f) {
+            if (!f.name.toLowerCase().endsWith('.pdf')) {
+                panel.innerHTML = '<div class="redact-verdict bad">That file is not a PDF.</div>';
+                panel.style.display = 'block';
+                return;
+            }
+            panel.innerHTML = '<div class="redact-verdict neutral">Reading the file: last revision, streams, raw bytes…</div>';
+            panel.style.display = 'block';
+            PDFMetaChecker.inspect(f).then(render).catch(function (err) {
+                panel.innerHTML = '<div class="redact-verdict bad">' + esc(err && err.message ? err.message : 'Could not read this PDF.') + '</div>';
+            });
+        }
+
+        var dropZone = document.getElementById('dropZone');
+        var input = document.getElementById('fileInput');
+        dropZone.addEventListener('click', function () { input.click(); });
+        input.addEventListener('change', function (e) {
+            if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+            e.target.value = '';
+        });
+        dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('active'); });
+        dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('active'); });
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('active');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+        });
+    })();
+    </script>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is this different from the remove-metadata tool?", "acceptedAnswer": {"@type": "Answer", "text": "The remove tool rewrites the file and clears both channels. This page only reads it. Keeping them separate is the point: a cleaner that also grades itself is the failure this page was built to catch."}}, {"@type": "Question", "name": "Does it work on a file another tool already compressed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, and that is the main use. Compression is not metadata removal: several tools in the 9-tool test returned files with the original author or producer intact. Run the checker on the download before you send it anywhere."}}, {"@type": "Question", "name": "What is an orphaned XMP packet?", "acceptedAnswer": {"@type": "Answer", "text": "When a cleaner deletes the catalog's /Metadata reference, the XML stream itself can remain registered as an object and get written back on save. The properties panel shows nothing while the bytes still contain the author. This check decompresses every stream to find that case."}}, {"@type": "Question", "name": "What is an orphaned Info dictionary?", "acceptedAnswer": {"@type": "Answer", "text": "The trailer's /Info entry is a pointer, not the dictionary itself. A cleaner that resets the pointer leaves the original dictionary in the file as an object nobody references: the properties panel shows new values while the old author name is still on disk. PDF Candy's output in the 9-tool test does exactly this, leaving object 18 with the original /Author and /Producer 216 KB into a 226 KB file."}}, {"@type": "Question", "name": "Are my files uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read from disk into memory and parsed in the browser. No request leaves the machine, and no copy is stored."}}]}    </script>
+</body>
+</html>
